@@ -44,7 +44,7 @@ I'm a **Full-Stack Developer** with a passion for creating innovative, user-frie
 
 ## 💼 Projects  
 Here are a few of my favorite projects:  
-- [**Umbrella Redesign**](#): Reimagined the umbrella with modular, sustainable design principles.  
+- [**Umbrella Redesign**](https://alanmaizon.github.io/umbrella/): Reimagined the umbrella with modular, sustainable design principles.  
 - [**Taskify App**](#): A task management app with real-time collaboration features.  
 - [**E-Commerce Platform**](#): Full-stack e-commerce solution with payment integration.  
 
