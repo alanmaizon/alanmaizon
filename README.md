@@ -28,7 +28,7 @@ I'm a **Full-Stack Developer** with a passion for creating innovative, user-frie
   - Tools & Platforms: Docker, Kubernetes, AWS, GitHub Actions  
 
 - 🚀 **Passionate About**:  
-  - Building seamless user experiences  
+  - Games. Building seamless user experiences  
   - Exploring emerging technologies (AI, Web3, etc.)  
   - Clean and maintainable code  
 
@@ -44,8 +44,8 @@ I'm a **Full-Stack Developer** with a passion for creating innovative, user-frie
 
 ## 💼 Projects  
 Here are a few of my favorite projects:  
-- [**Umbrella Redesign**](https://github.com/alanmaizon/umbrella/): Reimagined the umbrella with modular, sustainable design principles.  
-- [**Taskify App**](https://github.com/alanmaizon/stop_game): A task management app with real-time collaboration features.  
+- [**3D First Person**](https://github.com/alanmaizon/umbrella/): Reimagined the umbrella with modular, 3D design principles.  
+- [**Stop! Game**](https://github.com/alanmaizon/stop_game): A game with real-time collaboration features.  
 - [**E-Commerce Platform**](https://github.com/alanmaizon/dellamaison): Full-stack e-commerce solution with payment integration.  
 
 ---
