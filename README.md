@@ -38,15 +38,15 @@ I'm a **Full-Stack Developer** with a passion for creating innovative, user-frie
 
 - 🎨 **Hobbies**:  
   - Redesigning and improving everyday objects (yes, even umbrellas!)  
-  - Sharing tech tips and tutorials on [my blog](#).  
+  - Sharing tech tips and tutorials on [my blog](https://alanmaizon.com/).  
 
 ---
 
 ## 💼 Projects  
 Here are a few of my favorite projects:  
-- [**Umbrella Redesign**](https://alanmaizon.github.io/umbrella/): Reimagined the umbrella with modular, sustainable design principles.  
-- [**Taskify App**](#): A task management app with real-time collaboration features.  
-- [**E-Commerce Platform**](#): Full-stack e-commerce solution with payment integration.  
+- [**Umbrella Redesign**](https://github.com/alanmaizon/umbrella/): Reimagined the umbrella with modular, sustainable design principles.  
+- [**Taskify App**](https://github.com/alanmaizon/stop_game): A task management app with real-time collaboration features.  
+- [**E-Commerce Platform**](https://github.com/alanmaizon/dellamaison): Full-stack e-commerce solution with payment integration.  
 
 ---
 
