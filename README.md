@@ -29,7 +29,7 @@
 
 ## 💼 Projects  
 Here are a few of my favorite projects:  
-- [**3D First Person**](https://github.com/alanmaizon/umbrella/): Reimagined the umbrella with modular, 3D design principles.  
+- [**3D First Person**](https://github.com/alanmaizon/umbrella/): Reimagined first person basic movements with modular, 3D design principles.  
 - [**Stop! Game**](https://github.com/alanmaizon/stop_game): A game with real-time collaboration features.  
 - [**E-Commerce Platform**](https://github.com/alanmaizon/dellamaison): Full-stack e-commerce solution with payment integration.  
 
