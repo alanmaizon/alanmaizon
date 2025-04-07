@@ -9,7 +9,7 @@
 - 💻 **Tech Stack**:  
   - Frontend: React, Angular, HTML, CSS, JavaScript/TypeScript  
   - Backend: Node.js, Express, Django, Flask  
-  - Databases: MongoDB, PostgreSQL, MySQL  
+  - Databases: DynamoDB, PostgreSQL, MySQL  
   - Tools & Platforms: Docker, Kubernetes, AWS, GitHub Actions  
 
 - 🚀 **Passionate About**:  
