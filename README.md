@@ -42,7 +42,7 @@ Here are a few of my favorite projects:
 
 ## 🌐 Connect with Me  
 - [LinkedIn](https://linkedin.com/in/maizonalan)  
-- [Portfolio](https://alanmaizon.com)  
+- [Portfolio](https://lovethatgivesback.com)  
 - [Email](mailto:alanmaizon@hotmail.com)  
 
 ---
