@@ -17,19 +17,11 @@
   - Exploring emerging technologies (AI, Web3, etc.)  
   - Clean and maintainable code  
 
-- 🌱 **Currently Learning**:  
-  - Microservices architecture  
-  - Advanced cloud-native solutions  
-
-- 🎨 **Hobbies**:  
-  - Redesigning and improving everyday objects (yes, even umbrellas!)  
-  - Sharing tech tips and tutorials on [my blog](https://alanmaizon.com/).  
-
 ---
 
 ## 💼 Projects  
 Here are a few of my favorite projects:  
-- [**3D First Person**](https://github.com/alanmaizon/umbrella/): Reimagined first person basic movements with modular, 3D design principles.  
+- [**3D First Person**](https://github.com/alanmaizon/caminoXR/): Reimagined first person basic movements with modular, 3D design principles.  
 - [**Stop! Game**](https://github.com/alanmaizon/stop_game): A game with real-time collaboration features.  
 - [**E-Commerce Platform**](https://github.com/alanmaizon/dellamaison): Full-stack e-commerce solution with payment integration.  
 
@@ -41,8 +33,7 @@ Here are a few of my favorite projects:
 ---
 
 ## 🌐 Connect with Me  
-- [LinkedIn](https://linkedin.com/in/maizonalan)  
-- [Portfolio](https://lovethatgivesback.com)  
+- [LinkedIn](https://linkedin.com/in/maizonalan)
 - [Email](mailto:alanmaizon@hotmail.com)  
 
 ---
