@@ -22,53 +22,68 @@ a {
   z-index: 10;
 }
 
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* 50% black */
+  z-index: 5;
+}
+
 .bg-layer {
   position: absolute;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
   opacity: 0;
   animation-duration: 9s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  z-index: 1;
+  overflow: hidden;
 }
 
-.bg-1 {
-  background-image: url('1.png');
-  animation-name: fade1;
+.zoom {
+  width: 100%;
+  height: 100%;
+  background-size: 110%;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: kenburns 9s ease-in-out infinite;
+  transform-origin: center center;
 }
 
-.bg-2 {
-  background-image: url('2.png');
-  animation-name: fade2;
-}
-
-.bg-3 {
-  background-image: url('3.png');
-  animation-name: fade3;
-}
-
-/* Animations */
+/* Crossfade Animations (smooth overlap) */
 @keyframes fade1 {
-  0%   { opacity: 1; }
-  33%  { opacity: 0; }
-  100% { opacity: 0; }
+  0%, 28% { opacity: 1; }
+  33%, 100% { opacity: 0; }
 }
-
 @keyframes fade2 {
-  0%   { opacity: 0; }
-  33%  { opacity: 1; }
-  66%  { opacity: 0; }
+  0%, 28% { opacity: 0; }
+  33%, 61% { opacity: 1; }
+  66%, 100% { opacity: 0; }
+}
+@keyframes fade3 {
+  0%, 61% { opacity: 0; }
+  66%, 94% { opacity: 1; }
   100% { opacity: 0; }
 }
 
-@keyframes fade3 {
-  0%   { opacity: 0; }
-  66%  { opacity: 0; }
-  100% { opacity: 1; }
+/* Ken Burns Effect */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.1) translate(-2%, -2%);
+  }
 }
+
+/* Assign fade animations */
+.fade-1 { animation-name: fade1; }
+.fade-2 { animation-name: fade2; }
+.fade-3 { animation-name: fade3; }
 
 /* Carousel Styling */
 .carousel-wrapper {
