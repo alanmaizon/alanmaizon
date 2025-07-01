@@ -18,6 +18,12 @@ a {
   background-color: black;
 }
 
+.hero-logo {
+  max-width: 120px;
+  height: auto;
+  display: inline-block;
+}
+
 .hero-content {
   z-index: 10;
 }
@@ -47,11 +53,20 @@ a {
 .zoom {
   width: 100%;
   height: 100%;
-  background-size: 110%;
-  background-position: center;
+  background-size: cover; /* ✅ responsive */
+  background-position: center center;
   background-repeat: no-repeat;
   animation: kenburns 9s ease-in-out infinite;
   transform-origin: center center;
+}
+
+#services h4 {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+#services p {
+  font-size: 0.95rem;
 }
 
 /* Crossfade Animations (smooth overlap) */
