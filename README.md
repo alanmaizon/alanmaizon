@@ -1,7 +1,5 @@
 # Hi there, I'm Alan Maizon! 👋  
 
-- I'm a **Full-Stack Developer** with a passion for creating innovative, user-friendly, and scalable applications. I thrive on solving complex problems, learning new technologies, and collaborating with others to bring ideas to life.
-
 ![github-user-contribution](github-user-contribution.svg)
 ---
 
