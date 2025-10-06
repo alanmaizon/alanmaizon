@@ -5,7 +5,7 @@
 
 
 ## GitHub Stats  
-![Alan's GitHub stats](https://github-readme-stats.vercel.app/api?username=AlanMaizon&show_icons=true&theme=radical)
+[Alan's GitHub stats](https://github-readme-stats.vercel.app/api?username=AlanMaizon&show_icons=true&theme=radical)
 
 ---
 
