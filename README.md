@@ -1,6 +1,6 @@
 # Hello World
 
-IT professional focused on troubleshooting, root-cause analysis, and building clear, reliable fixes.  
+Web Developer focused on troubleshooting, root-cause analysis, and building clear, reliable fixes.  
 Interested in roles spanning IT Support / Systems / Cloud / Automation.
 
 ---
