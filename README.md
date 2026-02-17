@@ -37,5 +37,6 @@ Interested in roles spanning IT Support / Systems / Cloud / Automation.
 ## 🗓️ Contributions
 ![github-user-contribution](github-user-contribution.svg)
 
-<!-- Optional: Activity graph under the fold -->
-<!-- ![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon) -->
+---
+
+![Activity Graph](https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon)
