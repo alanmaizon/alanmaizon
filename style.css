@@ -1,155 +1,120 @@
-/* General Reset & Base */
+/* Base */
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: #fdfdfd;
-  color: #333;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #fff;
+  color: #222;
+  line-height: 1.7;
 }
 
 a {
+  color: #0055aa;
   text-decoration: none;
 }
 
-/* HERO SECTION */
-.hero-section {
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-  background-color: black;
+a:hover {
+  text-decoration: underline;
 }
 
-.hero-logo {
-  max-width: 120px;
-  height: auto;
-  display: inline-block;
+/* Layout */
+header, section, footer {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
 }
 
-.hero-content {
-  z-index: 10;
+/* Hero */
+#hero {
+  padding-top: 5rem;
+  padding-bottom: 2rem;
 }
 
-.hero-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 50% black */
-  z-index: 5;
+#hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
 }
 
-.bg-layer {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  animation-duration: 9s;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  z-index: 1;
-  overflow: hidden;
+.headline {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0;
 }
 
-.zoom {
-  width: 100%;
-  height: 100%;
-  background-size: cover; /* ✅ responsive */
-  background-position: center center;
-  background-repeat: no-repeat;
-  animation: kenburns 9s ease-in-out infinite;
-  transform-origin: center center;
-}
-
-#services h4 {
+/* Section headings */
+h2 {
+  font-size: 1.15rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #333;
 }
 
-#services p {
-  font-size: 0.95rem;
+/* Projects */
+.project-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-/* Crossfade Animations (smooth overlap) */
-@keyframes fade1 {
-  0%, 28% { opacity: 1; }
-  33%, 100% { opacity: 0; }
-}
-@keyframes fade2 {
-  0%, 28% { opacity: 0; }
-  33%, 61% { opacity: 1; }
-  66%, 100% { opacity: 0; }
-}
-@keyframes fade3 {
-  0%, 61% { opacity: 0; }
-  66%, 94% { opacity: 1; }
-  100% { opacity: 0; }
+.project-list li {
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
 }
 
-/* Ken Burns Effect */
-@keyframes kenburns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  100% {
-    transform: scale(1.1) translate(-2%, -2%);
-  }
+.project-list li a {
+  margin-left: 0.25rem;
+  font-size: 0.9rem;
 }
 
-/* Assign fade animations */
-.fade-1 { animation-name: fade1; }
-.fade-2 { animation-name: fade2; }
-.fade-3 { animation-name: fade3; }
-
-/* Carousel Styling */
-.carousel-wrapper {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  height: 100px;
+/* Interests list */
+#interests ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0;
 }
 
-.carousel-track {
+#interests li {
+  margin-bottom: 0.35rem;
+}
+
+/* Skills */
+#skills p {
+  margin: 0;
+}
+
+/* Contact */
+.contact-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100px;
-  will-change: transform;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
-.icon-carousel,
-.icon-carousel.cloned {
-  display: flex;
-  gap: 40px;
-  height: 100px;
-  flex-shrink: 0;
+/* Footer */
+footer {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  border-top: 1px solid #eee;
 }
 
-.icon-item {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  flex-shrink: 0;
+footer p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #999;
 }
 
-.loop-gap {
-  width: 30px; /* You can adjust this */
-  flex-shrink: 0;
-}
-
-/* Portfolio Cards */
-.card-img-top {
-  object-fit: cover;
-  aspect-ratio: 1 / 1;
-  border-bottom: 1px solid #ccc;
-}
-
-/* Responsive Tweaks */
-@media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 2rem;
+/* Responsive */
+@media (max-width: 600px) {
+  #hero h1 {
+    font-size: 1.6rem;
   }
-  .hero-content p {
-    font-size: 1rem;
+
+  .contact-links {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

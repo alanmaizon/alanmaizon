@@ -3,297 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Alan Maizon - Full Stack Developer & Support Specialist</title>
+  <title>Alan Maizon — Software Engineer</title>
 
   <!-- SEO Meta Tags -->
-  <meta name="description" content="Alan Maizon is a full stack developer and support specialist. Explore his portfolio, projects, and expertise in web development, network configuration, and tech support." />
-  <meta name="keywords" content="Alan Maizon, Full Stack Developer, Web Developer, Portfolio, Network Configuration, Tech Support, Software Installation, Hardware Upgrades, System Optimization, Data Sanitization, Python, JavaScript, React, Docker, Django, Bootstrap, Node.js, MongoDB, MySQL, PostgreSQL, Git, GitHub" />
+  <meta name="description" content="Alan Maizon — Software Engineer focused on AI systems, reliability, and cloud infrastructure." />
+  <meta name="keywords" content="Alan Maizon, Software Engineer, AI Systems, Cloud Infrastructure, Python, FastAPI, Django, React, AWS, Docker" />
   <meta name="author" content="Alan Maizon" />
   <meta name="robots" content="index, follow" />
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:title" content="Alan Maizon - Full Stack Developer & Support Specialist" />
-  <meta property="og:description" content="Portfolio of Alan Maizon, showcasing web development projects, technical expertise, and support services." />
+  <!-- Open Graph -->
+  <meta property="og:title" content="Alan Maizon — Software Engineer" />
+  <meta property="og:description" content="Software Engineer focused on AI systems, reliability, and cloud infrastructure." />
   <meta property="og:image" content="logo.png" />
   <meta property="og:url" content="https://alanmaizon.github.io/alanmaizon" />
   <meta property="og:type" content="website" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Alan Maizon - Full Stack Developer & Support Specialist" />
-  <meta name="twitter:description" content="Portfolio of Alan Maizon, showcasing web development projects, technical expertise, and support services." />
+  <meta name="twitter:title" content="Alan Maizon — Software Engineer" />
+  <meta name="twitter:description" content="Software Engineer focused on AI systems, reliability, and cloud infrastructure." />
   <meta name="twitter:image" content="logo.png" />
 
   <!-- Canonical URL -->
   <link rel="canonical" href="https://alanmaizon.github.io/alanmaizon" />
-
-  <!-- Bootstrap & Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css" />
 
   <!-- Favicon -->
   <link rel="icon" href="logo.png" type="image/png" />
-
-  <!-- Hammer.js -->
-  <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
 </head>
 
 <body>
 
-  <!-- HERO SECTION with timed background transitions -->
-  <header class="hero-section position-relative">
-    <div class="bg-layer fade-1"><div class="zoom" style="background-image: url('1.png');"></div></div>
-    <div class="bg-layer fade-2"><div class="zoom" style="background-image: url('2.png');"></div></div>
-    <div class="bg-layer fade-3"><div class="zoom" style="background-image: url('3.png');"></div></div>
-    <div class="hero-overlay"></div>
-    <div class="hero-content text-center text-white position-absolute top-50 start-50 translate-middle">
-      <img src="logo.png" alt="Logo" class="hero-logo mb-3" />
-      <h1 class="display-4">Alan Maizon</h1>
-      <p class="lead">Full Stack Developer & Support Specialist</p>
-      <a href="#about" class="btn btn-light">Learn More</a>
-    </div>
+  <!-- HERO -->
+  <header id="hero">
+    <h1>Alan Maizon</h1>
+    <p class="headline">Software Engineer focused on AI systems, reliability, and cloud infrastructure.</p>
   </header>
 
+  <!-- SELECTED ENGINEERING WORK -->
+  <section id="work">
+    <h2>Selected Engineering Work</h2>
+    <ul class="project-list">
+      <li>
+        <strong>Nebula</strong> —
+        Amazon Nova-powered grant-drafting workspace: extracts requirements, generates citation-backed sections, and computes coverage. Built with Next.js, FastAPI, and Bedrock.
+        <a href="https://github.com/alanmaizon/nebula" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </li>
+      <li>
+        <strong>Fangio</strong> —
+        A local-first trusted runtime for autonomous agents with structured planning, approval gates, risk classification, and deterministic replay.
+        <a href="https://github.com/alanmaizon/fangio" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </li>
+      <li>
+        <strong>Siamese</strong> —
+        Incident-analysis app that turns uploaded logs into structured reports using Gemini. React + TypeScript, deployed on Cloud Run.
+        <a href="https://github.com/alanmaizon/siamese" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </li>
+    </ul>
+  </section>
+
   <!-- ABOUT -->
-  <section id="about" class="py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">About Me</h2>
-      <div class="row g-4 text-center">
-      <p>
-        Welcome to my portfolio! I'm a passionate web developer with a keen eye for design and a love for creating engaging digital experiences.</br>
-        I have years of experience as a technician, bringing solutions through safe, efficient, and effective practices.</br>
-        My goal is to bridge the gap between technology and user experience.</br>
-        I specialize in full-stack development, crafting responsive and interactive web applications that not only look great but also perform seamlessly across devices.</br>
-        I thrive on challenges and enjoy collaborating with clients to bring their visions to life.</br>
-      </p>
-      </div>
-    </div>
+  <section id="about">
+    <h2>About</h2>
+    <p>
+      I build backend services and developer tools, mostly in Python and TypeScript.
+      Recent work has focused on AI agent runtimes, structured LLM workflows, and cloud deployment pipelines.
+      I care about systems that are observable, well-tested, and simple to operate.
+      Previously worked across full-stack web development and IT operations.
+    </p>
   </section>
 
-  <section id="services" class="py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Expertise</h2>
-      <div class="row g-4 text-center">
-
-        <div class="col-md-4">
-          <h4>Network Configuration</h4>
-          <p>Setting up routers and modems, securing Wi-Fi networks, and implementing cybersecurity best practices to protect against threats.</p>
-        </div>
-
-        <div class="col-md-4">
-          <h4>Software Installation</h4>
-          <p>Installing and configuring productivity and creative tools with attention to OS compatibility and performance.</p>
-        </div>
-
-        <div class="col-md-4">
-          <h4>Hardware Upgrades</h4>
-          <p>Enhancing performance by upgrading RAM, SSDs, and optimizing BIOS/firmware on legacy systems to bring them up to modern standards.</p>
-        </div>
-
-        <div class="col-md-4">
-          <h4>System Optimization</h4>
-          <p>Diagnosing bottlenecks and tuning systems by removing unnecessary features, updating drivers, and managing startup services.</p>
-        </div>
-
-        <div class="col-md-4">
-          <h4>Data Sanitization</h4>
-          <p>Securely erasing disks, degaussing, and shredding data to comply with data destruction and privacy policies.</p>
-        </div>
-
-        <div class="col-md-4">
-          <h4>Tech Support</h4>
-          <p>Providing hardware/software troubleshooting for clients, from OS errors to application crashes and device setup.</p>
-        </div>
-
-      </div>
-    </div>
+  <!-- ENGINEERING INTERESTS -->
+  <section id="interests">
+    <h2>Engineering Interests</h2>
+    <ul>
+      <li>AI systems &amp; agent governance</li>
+      <li>Reliability / ops tooling</li>
+      <li>Cloud-native architectures</li>
+      <li>Developer platforms</li>
+    </ul>
   </section>
 
-  <!-- FULLSTACK ICON CAROUSEL -->
-  <section id="icons" class="py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Toolkit</h2>
-        <div class="carousel-wrapper">
-          <div class="carousel-track">
-            <div class="icon-carousel d-flex gap-4">
-              <!-- Icons as examples (replace src with your local icons or CDN) -->
-              <img src="https://cdn.simpleicons.org/react/61DAFB" alt="React" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/python/3776AB" alt="Python" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/php/777BB4" alt="PHP" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/django/092E20" alt="Django" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/bootstrap/7952B3" alt="Bootstrap" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/javascript/323330" alt="JavaScript" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/typescript/007ACC" alt="TypeScript" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/node.js/339933" alt="Node.js" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/three.js/000000" alt="Three.js" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/next.js/000000" alt="Next.js" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/graphql/E10098" alt="GraphQL" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/mongodb/47A248" alt="MongoDB" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/postgresql/4169E1" alt="PostgreSQL" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/git/000000" alt="Git" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/github/181717" alt="GitHub" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/figma/F24E1E" alt="Figma" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/webpack/8DD6F9" alt="Webpack" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/redis/DC382D" alt="Redis" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/selenium/43B02A" alt="Selenium" class="icon-item" />
-              <img src="https://cdn.simpleicons.org/teamviewer/0E8EE9" alt="TeamViewer" class="icon-item" />
-            </div>
-        </div>
-      </div>
-    </div>
+  <!-- SKILLS -->
+  <section id="skills">
+    <h2>Skills</h2>
+    <p>
+      <strong>Languages:</strong> Python, JavaScript, SQL<br />
+      <strong>Frameworks:</strong> FastAPI, Django, React / Next.js<br />
+      <strong>Infrastructure:</strong> AWS, Docker
+    </p>
   </section>
-
-  <!-- FEATURED PROJECT -->
-  <section id="featured" class="py-5 bg-light">
-    <div class="container">
-      <h2 class="text-center mb-4">Featured Project</h2>
-      <div class="row justify-content-center">
-        <div class="col-lg-10">
-          <div class="card h-100">
-            <div class="row g-0">
-              <div class="col-md-5">
-                <img src="siamese.png" class="img-fluid rounded-start h-100 object-fit-cover" alt="Siamese Project" />
-              </div>
-              <div class="col-md-7">
-                <div class="card-body">
-                  <h5 class="card-title mb-2">Siamese</h5>
-                  <p class="card-text mb-2"><strong>Gemini 3 Hackathon submission</strong></p>
-                  <p class="card-text">A lightweight web app that showcases a clean, fast Vite + React + TypeScript setup for a debuggin tool integrated with Gemini API.</p>
-                  <a href="https://siamese-911931794549.us-west1.run.app/" class="btn btn-primary" target="_blank">View Project</a>
-                  <a href="https://github.com/alanmaizon/siamese" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-                  <a href="https://vimeo.com/1162638685" class="btn btn-outline-dark ms-2" target="_blank">Video Demo</a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PORTFOLIO SECTION -->
-  <section id="portfolio" class="py-5">
-    <div class="container">
-      <h2 class="text-center mb-4">Projects</h2>
-      <div class="row g-4">
-        <!-- Project 1 -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="flow.jpg" class="card-img-top" alt="Love That Gives Back" />
-            <div class="card-body">
-              <h5 class="card-title">Love That Gives Back</h5>
-              <p class="card-text">User donation system with admin panel and bank transfer confirmations.</p>
-              <a href="https://www.lovethatgivesback.com/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/love" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 2 -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="cube.png" class="card-img-top" alt="Rubik Bass" />
-            <div class="card-body">
-              <h5 class="card-title">Rubik Bass</h5>
-              <p class="card-text">Arpeggio sequencer using Rubik’s cube color faces and audio samples.</p>
-              <a href="https://alanmaizon.github.io/rubik-3D-model/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/rubik-3D-model" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 3 -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="prof.jpg" class="card-img-top" alt="CaminoXR" />
-            <div class="card-body">
-              <h5 class="card-title">CaminoXR</h5>
-              <p class="card-text">WebXR immersive 3D experience with walking, jumping, and smooth transitions.</p>
-              <a href="https://alanmaizon.github.io/caminoXR/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/caminoXR" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 4 -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="starbugs.png" class="card-img-top" alt="Starbugs Shooter" />
-            <div class="card-body">
-              <h5 class="card-title">Shooter Game</h5>
-              <p class="card-text">A thrilling shooting game set in the space, fast-paced action and 3D graphics.</p>
-              <a href="https://starbugs.onrender.com/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/starbugs" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 5 -->
-        <div class="col-md-4">  
-          <div class="card h-100">
-            <img src="solar.gif" class="card-img-top" alt="Portfolio Website" />
-            <div class="card-body">
-              <h5 class="card-title">Holst: The Planets</h5>
-              <p class="card-text">An interactive 3D model of the solar system, showcasing the planets and their music.</p>
-              <a href="https://cosmic-pahb.onrender.com/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/cosmic" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Project 6 -->
-        <div class="col-md-4">
-          <div class="card h-100">
-            <img src="back.gif" class="card-img-top" alt="Portfolio Website" />
-            <div class="card-body">
-              <h5 class="card-title">Lagoons</h5>
-              <p class="card-text">A virtual looper, sampler and synth, allowing users to play and compose music.</p>
-              <a href="https://alanmaizon.github.io/lagoons/" class="btn btn-primary" target="_blank">View Project</a>
-              <a href="https://github.com/alanmaizon/lagoons" class="btn btn-secondary ms-2" target="_blank">GitHub Repo</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
 
   <!-- CONTACT -->
-  <section id="contact" class="py-5 bg-light">
-    <div class="container">
-      <h2>Contact Me</h2>
-      <form action="https://formspree.io/f/mzzgozdd" method="POST">
-        <div class="mb-3">
-          <label>Your Name:</label>
-          <input type="text" name="name" class="form-control" placeholder="Your Name" required />
-        </div>
-        <div class="mb-3">
-          <label>Your Email:</label>
-          <input type="email" name="email" class="form-control" placeholder="Your Email" required />
-        </div>
-        <div class="mb-3">
-          <label>Your Message:</label>
-          <textarea name="message" class="form-control" placeholder="Your Message" required></textarea>
-        </div>
-        <button type="submit" class="btn btn-success">Send Message</button>
-      </form>
-    </div>
+  <section id="contact">
+    <h2>Contact</h2>
+    <ul class="contact-links">
+      <li><a href="mailto:alanmaizon@hotmail.com">alanmaizon@hotmail.com</a></li>
+      <li><a href="https://github.com/alanmaizon" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+      <li><a href="https://linkedin.com/in/maizonalan" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+    </ul>
   </section>
 
   <!-- FOOTER -->
-  <footer class="text-center py-3">
-    <div class="container">
-      <p>&copy; 2025 Alan Maizon. All rights reserved.</p>
-    </div>
+  <footer>
+    <p>&copy; 2026 Alan Maizon</p>
   </footer>
 
-  <!-- Custom Scripts -->
-  <script src="script.js"></script>
 </body>
 </html>
