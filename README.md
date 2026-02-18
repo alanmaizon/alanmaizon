@@ -23,5 +23,5 @@ Software Engineer focused on AI systems, reliability, and cloud infrastructure.
 ## Connect
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-maizonalan-blue?logo=linkedin)](https://linkedin.com/in/maizonalan)
-[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:alanmaizon@hotmail.com)
+[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-alanmaizon.github.io-black?logo=github)](https://alanmaizon.github.io/alanmaizon)
