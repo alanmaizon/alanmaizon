@@ -1,0 +1,178 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  background-color: #F0EEE9;
+  color: #111111;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 60px 40px 20px;
+}
+
+a {
+  color: #111111;
+  text-decoration: none;
+  border-bottom: 1px solid #CCCCCC;
+  transition: border-color 0.2s ease;
+}
+
+a:hover {
+  border-bottom-color: #111111;
+}
+
+/* Header */
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+h1 {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+
+.contact-info {
+  font-size: 15px;
+  color: #666666;
+  line-height: 1.9;
+}
+
+.contact-info a {
+  color: #666666;
+}
+
+.contact-info a:hover {
+  color: #111111;
+}
+
+/* Dividers */
+
+hr {
+  border: none;
+  border-top: 1px solid #EAEAEA;
+  margin: 40px 0;
+}
+
+/* Sections */
+
+section {
+  margin-bottom: 0;
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 20px;
+}
+
+p {
+  font-size: 15px;
+  color: #666666;
+  line-height: 1.75;
+}
+
+/* Projects & Experience */
+
+article {
+  margin-bottom: 32px;
+}
+
+article:last-child {
+  margin-bottom: 0;
+}
+
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.project-link {
+  margin-bottom: 8px;
+}
+
+.project-link a {
+  font-size: 14px;
+  color: #666666;
+}
+
+.meta {
+  font-size: 14px;
+  color: #666666;
+  margin-bottom: 8px;
+}
+
+ul {
+  padding-left: 20px;
+  margin-top: 8px;
+}
+
+li {
+  font-size: 15px;
+  color: #666666;
+  margin-bottom: 4px;
+  line-height: 1.7;
+}
+
+/* Education */
+
+.education-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.education-list li {
+  margin-bottom: 10px;
+}
+
+.education-list strong {
+  color: #111111;
+}
+
+/* Footer */
+
+footer {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 40px 60px;
+  text-align: center;
+}
+
+footer p {
+  font-size: 13px;
+  color: #999999;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+  main {
+    padding: 40px 20px 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  footer {
+    padding: 30px 20px 40px;
+  }
+}
