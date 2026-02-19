@@ -2,8 +2,6 @@
 
 Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
 
-![Metrics](https://metrics.lecoq.io/alanmaizon)
-
 ---
 
 ## Activity
@@ -15,10 +13,6 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 <img src="https://streak-stats.demolab.com?user=alanmaizon" alt="GitHub streak" />
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon" alt="Activity graph" />
-
----
-
-![snake animation](https://github.com/alanmaizon/alanmaizon/blob/output/github-contribution-grid-snake.svg)
 
 ---
 
