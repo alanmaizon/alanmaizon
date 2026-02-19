@@ -20,9 +20,14 @@
 </head>
 
 <body>
-  <button id="download-pdf-btn" class="download-pdf-btn" type="button" aria-label="Download CV as PDF">
-    Download PDF
-  </button>
+  <a id="download-pdf-btn" class="download-pdf-btn" href="cv.pdf" download="Alan-Maizon-CV.pdf" aria-label="Download CV as PDF">
+    <span class="download-pdf-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" role="img" focusable="false">
+        <path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.29a1 1 0 1 1 1.4 1.41l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.41L11 12.59V4a1 1 0 0 1 1-1Zm-6 14a1 1 0 0 1 1 1v1h10v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z"></path>
+      </svg>
+    </span>
+    <span class="download-pdf-label">Download PDF</span>
+  </a>
 
   <main>
 
@@ -188,19 +193,5 @@
   <footer>
     <p>&copy; 2026 Alan Maizon</p>
   </footer>
-
-  <script>
-    const downloadPdfButton = document.getElementById("download-pdf-btn");
-    if (downloadPdfButton) {
-      downloadPdfButton.addEventListener("click", () => {
-        const previousTitle = document.title;
-        document.title = "Alan-Maizon-CV";
-        window.print();
-        setTimeout(() => {
-          document.title = previousTitle;
-        }, 500);
-      });
-    }
-  </script>
 </body>
 </html>

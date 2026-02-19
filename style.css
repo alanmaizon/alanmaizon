@@ -17,27 +17,45 @@ body {
   top: 20px;
   right: 20px;
   z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #F0EEE9;
-  background-color: #111111;
-  border: 1px solid #111111;
+  color: #111111;
+  background-color: rgba(240, 238, 233, 0.35);
+  border: 1px solid rgba(17, 17, 17, 0.35);
   border-radius: 999px;
-  padding: 10px 16px;
+  padding: 10px 14px;
+  border-bottom: none;
   cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .download-pdf-btn:hover {
   color: #111111;
-  background-color: #F0EEE9;
+  background-color: rgba(240, 238, 233, 0.75);
+  border-color: #111111;
   transform: translateY(-1px);
 }
 
 .download-pdf-btn:focus-visible {
   outline: 2px solid #111111;
   outline-offset: 2px;
+}
+
+.download-pdf-icon {
+  display: inline-flex;
+}
+
+.download-pdf-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
 }
 
 main {
@@ -55,6 +73,12 @@ a {
 
 a:hover {
   border-bottom-color: #111111;
+}
+
+.download-pdf-btn,
+.download-pdf-btn:hover {
+  border-bottom: none;
+  text-decoration: none;
 }
 
 /* Header */
@@ -192,7 +216,13 @@ footer p {
     top: 12px;
     right: 12px;
     font-size: 13px;
-    padding: 8px 12px;
+    gap: 6px;
+    padding: 8px 11px;
+  }
+
+  .download-pdf-icon svg {
+    width: 15px;
+    height: 15px;
   }
 
   main {
