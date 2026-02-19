@@ -1,6 +1,24 @@
 # Alan Maizon
 
-Software Engineer focused on AI systems, reliability, and cloud infrastructure.
+Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
+
+![Metrics](https://metrics.lecoq.io/alanmaizon)
+
+---
+
+## Activity
+
+<img src="https://github-readme-stats.vercel.app/api?username=alanmaizon&show_icons=true&hide_title=true&include_all_commits=true&count_private=true" alt="GitHub stats" />
+
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=alanmaizon&layout=compact&langs_count=8" alt="Top languages" />
+
+<img src="https://streak-stats.demolab.com?user=alanmaizon" alt="GitHub streak" />
+
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon" alt="Activity graph" />
+
+---
+
+![snake animation](https://github.com/alanmaizon/alanmaizon/blob/output/github-contribution-grid-snake.svg)
 
 ---
 
