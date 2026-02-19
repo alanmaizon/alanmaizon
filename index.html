@@ -20,6 +20,9 @@
 </head>
 
 <body>
+  <button id="download-pdf-btn" class="download-pdf-btn" type="button" aria-label="Download CV as PDF">
+    Download PDF
+  </button>
 
   <main>
 
@@ -186,5 +189,18 @@
     <p>&copy; 2026 Alan Maizon</p>
   </footer>
 
+  <script>
+    const downloadPdfButton = document.getElementById("download-pdf-btn");
+    if (downloadPdfButton) {
+      downloadPdfButton.addEventListener("click", () => {
+        const previousTitle = document.title;
+        document.title = "Alan-Maizon-CV";
+        window.print();
+        setTimeout(() => {
+          document.title = previousTitle;
+        }, 500);
+      });
+    }
+  </script>
 </body>
 </html>
