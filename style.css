@@ -23,9 +23,9 @@ body {
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #111111;
-  background-color: rgba(240, 238, 233, 0.35);
-  border: 1px solid rgba(17, 17, 17, 0.35);
+  color: #2A2A2A;
+  background-color: rgba(212, 212, 212, 0.72);
+  border: 1px solid rgba(96, 96, 96, 0.35);
   border-radius: 999px;
   padding: 10px 14px;
   border-bottom: none;
@@ -37,9 +37,9 @@ body {
 }
 
 .download-pdf-btn:hover {
-  color: #111111;
-  background-color: rgba(240, 238, 233, 0.75);
-  border-color: #111111;
+  color: #1F1F1F;
+  background-color: rgba(224, 224, 224, 0.92);
+  border-color: rgba(86, 86, 86, 0.55);
   transform: translateY(-1px);
 }
 
