@@ -11,7 +11,7 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon" alt="Activity graph" />
 
-![Snake animation](https://github.com/alanmaizon/alanmaizon/blob/output/github-contribution-grid-snake.svg)
+![Snake animation](https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg)
 
 
 ## Selected Engineering Work
