@@ -1,37 +1,61 @@
 # Alan Maizon
 
-Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
+Enniskerry, Co. Wicklow, Ireland  
+maizonalan@gmail.com | +353 89 617 9069  
+[github.com/alanmaizon](https://github.com/alanmaizon)
 
----
+## Profile
 
-## Activity
+Junior software developer with experience building backend systems and automating workflows using Python and JavaScript. Background in production infrastructure environments, including AWS operations. Focused on writing reliable, testable software and strengthening core engineering fundamentals.
 
+## Technical Skills
 
-<img src="https://streak-stats.demolab.com?user=alanmaizon" alt="GitHub streak" />
+- **Coding Languages:** Python, JavaScript, Bash
+- **Backend & Web:** REST APIs, Django, React
+- **Databases:** SQLAlchemy, postgreSQL
+- **Testing & Development:** Unit Tests, CI/CD, debugging
+- **Systems & Infrastructure:** Git, Docker, Linux
+- **AWS:** EC2, S3, IAM, RDS
 
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon" alt="Activity graph" />
+## Professional Experience
 
-![Snake animation](https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg)
+- **Sacred Space — Content Editor (Volunteer)**  
+  Dublin, Ireland | Jun 2024 – Present
+  - Wrote Bash scripts to automate audio processing workflows
+  - Reduced manual processing effort
+  - Standardised file handling and validation checks
 
+- **Spirit Radio — IT Technician**  
+  Bray, Ireland | Jun 2025 – Sep 2025
+  - Provided technical support for Windows systems
+  - Diagnosed hardware, network, and configuration issues
+  - Documented recurring issues and resolutions
 
-## Selected Engineering Work
+- **Amazon Web Services — Data Centre Technician**  
+  Dublin, Ireland | Jul 2023 – Nov 2023
+  - Supported physical server infrastructure in production environment
+  - Followed structured change-management procedures
+  - Diagnosed hardware faults and escalated issues
 
-- **[Nebula](https://github.com/alanmaizon/nebula)** — Amazon Nova-powered grant-drafting workspace (Next.js, FastAPI, Bedrock)
-- **[Fangio](https://github.com/alanmaizon/fangio)** — Trusted runtime for autonomous agents with approval gates and deterministic replay
-- **[Siamese](https://github.com/alanmaizon/siamese)** — Incident-analysis app using Gemini (React + TypeScript, Cloud Run)
+- **David Cullen Jewellers — Engraver**  
+  Dublin, Ireland | Dec 2023 – Apr 2025
+  - Performed precision engraving based on client specifications
+  - Maintained quality standards on custom orders
+  - Coordinated workflow between retail and workshop
 
----
+- **Starbucks — Assistant Store Manager**  
+  Dublin, Ireland | Jun 2022 – May 2023
+  - Supervised daily operations and staff scheduling
+  - Trained team members and maintained service standards
+  - Managed inventory and cash procedures
 
-## Skills
+## Education
 
-**Languages:** Python, JavaScript, SQL
-**Frameworks:** FastAPI, Django, React / Next.js
-**Infrastructure:** AWS, Docker
-
----
-
-## Connect
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-maizonalan-blue?logo=linkedin)](https://linkedin.com/in/maizonalan)
-[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
-[![Portfolio](https://img.shields.io/badge/Portfolio-alanmaizon.github.io-black?logo=github)](https://alanmaizon.github.io/alanmaizon)
+- National College of Ireland  
+  Certificate in Science in Computing — Completed (2025-2026)
+- UCD Professional Academy  
+  Diploma in Software Development — Completed (2024-2025)
+- IES University College, Argentina  
+  Bachelor in Data Science — Incomplete (2019-2020)
+- Cordoba National University, Argentina  
+  Computer Engineering — Incomplete (2013)
