@@ -1,6 +1,6 @@
 # Alan Maizon
 
-Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
+Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan)
 
 ---
 
