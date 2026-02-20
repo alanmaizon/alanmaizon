@@ -28,6 +28,8 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 **Frameworks:** FastAPI, Django, React / Next.js
 **Infrastructure:** AWS, Docker
 
+<div data-iframe-width="150" data-iframe-height="270" data-share-badge-id="30ed4fe1-a82e-4584-a564-2cbf273fa1ba" data-share-badge-host="https://www.credly.com"></div><script type="text/javascript" async src="//cdn.credly.com/assets/utilities/embed.js"></script>
+
 ---
 
 ## Connect
