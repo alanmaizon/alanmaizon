@@ -33,5 +33,5 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 ## Connect
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-maizonalan-blue?logo=linkedin)](https://linkedin.com/in/maizonalan)
-[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
+[![Email](https://img.shields.io/badge/Email-maizonalan%40gmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-alanmaizon.github.io-black?logo=github)](https://alanmaizon.github.io/alanmaizon)
