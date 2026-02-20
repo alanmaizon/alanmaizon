@@ -14,7 +14,7 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 ![Snake animation](https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg)
 
 
-## Selected Engineering Work
+## Projects
 
 - **[Nebula](https://github.com/alanmaizon/nebula)** — Amazon Nova-powered grant-drafting workspace (Next.js, FastAPI, Bedrock)
 - **[Fangio](https://github.com/alanmaizon/fangio)** — Trusted runtime for autonomous agents with approval gates and deterministic replay
