@@ -676,13 +676,12 @@ h3 {
 }
 
 .flow-chain {
-  display: grid;
-  gap: 26px;
+  display: flex;
+  flex-direction: column;
   margin-top: 14px;
 }
 
 .flow-chain span {
-  position: relative;
   display: block;
   padding: 12px 14px;
   border: 1px solid var(--border);
@@ -691,29 +690,13 @@ h3 {
   color: var(--text-muted);
 }
 
-.flow-chain span:not(:last-child)::before,
-.flow-chain span:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.flow-chain span:not(:last-child)::before {
-  bottom: -22px;
-  width: 1px;
-  height: 16px;
-  background: var(--border-strong);
-}
-
-.flow-chain span:not(:last-child)::after {
-  bottom: -26px;
-  width: 8px;
-  height: 8px;
-  border-right: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border-strong);
-  background: transparent;
-  transform: translateX(-50%) rotate(45deg);
+.flow-arrow {
+  display: block;
+  width: 12px;
+  height: 24px;
+  margin: 0 auto;
+  color: var(--border-strong);
+  flex-shrink: 0;
 }
 
 .work-grid {
