@@ -15,11 +15,7 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 
 ---
 
-<<<<<<< HEAD
 ## Focus
-=======
-## Projects
->>>>>>> abc2336288260627053bccfc99f5cb750fa2768f
 
 - Clear first-screen positioning around full-stack engineering, systems thinking, and troubleshooting depth
 - Verified project case studies for:
