@@ -1,6 +1,6 @@
 # Alan Maizon
 
-Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
+Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan)
 
 ---
 
@@ -15,7 +15,11 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 
 ---
 
+<<<<<<< HEAD
 ## Focus
+=======
+## Projects
+>>>>>>> abc2336288260627053bccfc99f5cb750fa2768f
 
 - Clear first-screen positioning around full-stack engineering, systems thinking, and troubleshooting depth
 - Verified project case studies for:
@@ -48,5 +52,5 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 ## Connect
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-maizonalan-blue?logo=linkedin)](https://linkedin.com/in/maizonalan)
-[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
+[![Email](https://img.shields.io/badge/Email-maizonalan%40gmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
 [![Portfolio](https://img.shields.io/badge/Portfolio-alanmaizon.github.io-black?logo=github)](https://alanmaizon.github.io/alanmaizon)
