@@ -1,0 +1,17 @@
+{
+  "name": "Alan Maizon Portfolio",
+  "short_name": "Alan Maizon",
+  "start_url": "/alanmaizon/",
+  "scope": "/alanmaizon/",
+  "display": "standalone",
+  "background_color": "#f4f1eb",
+  "theme_color": "#f4f1eb",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

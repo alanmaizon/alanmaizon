@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Alan Maizon portfolio preview</title>
+  <desc id="desc">Portfolio preview for Alan Maizon, early-career full-stack software engineer.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#f4f1eb" />
+      <stop offset="100%" stop-color="#ebe5da" />
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#17354a" />
+      <stop offset="100%" stop-color="#2b5a79" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="132" cy="118" r="122" fill="#dbe6ee" opacity="0.55" />
+  <circle cx="1086" cy="558" r="184" fill="#d9cdb6" opacity="0.34" />
+  <rect x="70" y="70" width="1060" height="490" rx="32" fill="#fffdfa" stroke="#d6d1c8" />
+  <rect x="760" y="112" width="300" height="210" rx="26" fill="url(#panel)" />
+  <rect x="126" y="410" width="235" height="84" rx="18" fill="#eef2f5" stroke="#d7dde2" />
+  <rect x="386" y="410" width="235" height="84" rx="18" fill="#eef2f5" stroke="#d7dde2" />
+  <rect x="646" y="410" width="235" height="84" rx="18" fill="#eef2f5" stroke="#d7dde2" />
+  <text x="126" y="154" fill="#6b7480" font-family="IBM Plex Sans, Arial, sans-serif" font-size="20" letter-spacing="4">ALAN MAIZON</text>
+  <text x="126" y="244" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="64" font-weight="700">Full-stack software engineer</text>
+  <text x="126" y="308" fill="#244d6a" font-family="Georgia, serif" font-size="46">Careful systems, grounded execution</text>
+  <text x="126" y="362" fill="#56606d" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28">React, Django, FastAPI, SQL, AWS, Docker, testing</text>
+  <text x="126" y="455" fill="#6b7480" font-family="IBM Plex Sans, Arial, sans-serif" font-size="18" letter-spacing="2">PROJECT SIGNAL</text>
+  <text x="126" y="486" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">Donation flows, APIs,</text>
+  <text x="126" y="517" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">transaction handling</text>
+  <text x="386" y="455" fill="#6b7480" font-family="IBM Plex Sans, Arial, sans-serif" font-size="18" letter-spacing="2">CLOUD EXPOSURE</text>
+  <text x="386" y="486" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">AWS-oriented systems,</text>
+  <text x="386" y="517" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">CI, Docker, deployment</text>
+  <text x="646" y="455" fill="#6b7480" font-family="IBM Plex Sans, Arial, sans-serif" font-size="18" letter-spacing="2">WORKING STYLE</text>
+  <text x="646" y="486" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">Debugging, documentation,</text>
+  <text x="646" y="517" fill="#141a21" font-family="IBM Plex Sans, Arial, sans-serif" font-size="24" font-weight="600">integrated thinking</text>
+  <text x="810" y="176" fill="#d5e4ef" font-family="IBM Plex Sans, Arial, sans-serif" font-size="18" letter-spacing="2">FOCUS</text>
+  <text x="810" y="224" fill="#f8fbff" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28" font-weight="600">Early-career engineer</text>
+  <text x="810" y="262" fill="#f8fbff" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28" font-weight="600">for integrated product</text>
+  <text x="810" y="300" fill="#f8fbff" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28" font-weight="600">and platform work</text>
+</svg>

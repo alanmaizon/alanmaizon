@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alanmaizon.github.io/alanmaizon/sitemap.xml

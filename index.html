@@ -1,196 +1,697 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Alan Maizon — CV</title>
-
-  <meta name="description" content="Alan Maizon — CV" />
+  <title>Alan Maizon | Full-Stack Software Engineer</title>
+  <meta
+    name="description"
+    content="Alan Maizon is an early-career full-stack software engineer building careful web systems with React, Django, FastAPI, SQL, AWS, Docker, and strong troubleshooting discipline."
+  />
   <meta name="author" content="Alan Maizon" />
   <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#f3efe8" />
 
-  <link rel="canonical" href="https://alanmaizon.github.io/alanmaizon" />
+  <link rel="canonical" href="https://alanmaizon.github.io/alanmaizon/" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <script>
+    (function () {
+      var storageKey = "alanmaizon-theme-choice";
+      var root = document.documentElement;
+      var choice = "system";
+
+      try {
+        var storedChoice = localStorage.getItem(storageKey);
+        if (storedChoice === "light" || storedChoice === "dark" || storedChoice === "system") {
+          choice = storedChoice;
+        }
+      } catch (error) {
+        choice = "system";
+      }
+
+      var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      var resolvedTheme = choice === "system" ? (prefersDark ? "dark" : "light") : choice;
+      root.dataset.themeChoice = choice;
+      root.dataset.theme = resolvedTheme;
+
+      var themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) {
+        themeMeta.setAttribute("content", resolvedTheme === "dark" ? "#0f151c" : "#f3efe8");
+      }
+    })();
+  </script>
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Alan Maizon | Full-Stack Software Engineer" />
+  <meta
+    property="og:description"
+    content="Early-career full-stack engineer with project experience across React, Django, FastAPI, SQL, AWS, Docker, testing, and integrated system design."
+  />
+  <meta property="og:url" content="https://alanmaizon.github.io/alanmaizon/" />
+  <meta property="og:image" content="https://alanmaizon.github.io/alanmaizon/og-image.svg" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Alan Maizon | Full-Stack Software Engineer" />
+  <meta
+    name="twitter:description"
+    content="Careful full-stack engineering, grounded project work, and a troubleshooting background that translates well to integrated product systems."
+  />
+  <meta name="twitter:image" content="https://alanmaizon.github.io/alanmaizon/og-image.svg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+    rel="stylesheet"
+  />
 
   <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
 </head>
-
 <body>
-  <a id="download-pdf-btn" class="download-pdf-btn" href="cv.pdf" download="Alan-Maizon-CV.pdf" aria-label="Download CV as PDF">
-    <span class="download-pdf-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" role="img" focusable="false">
-        <path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.29a1 1 0 1 1 1.4 1.41l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.41L11 12.59V4a1 1 0 0 1 1-1Zm-6 14a1 1 0 0 1 1 1v1h10v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z"></path>
-      </svg>
-    </span>
-    <span class="download-pdf-label">Download PDF</span>
-  </a>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-  <main>
+  <div class="page-shell" id="top">
+    <header class="site-header">
+      <div class="brand-lockup">
+        <a class="brand-mark" href="#home" aria-label="Alan Maizon home">Alan Maizon</a>
+        <p class="brand-note">Full-stack software engineer</p>
+      </div>
 
-    <!-- HEADER -->
-    <header>
-      <h1>Alan Maizon</h1>
-      <p class="contact-info">
-        Enniskerry, Co. Wicklow, Ireland<br />
-        <a href="mailto:maizonalan@gmail.com">maizonalan@gmail.com</a><br />
-        +353 89 617 9069<br />
-        <a href="https://github.com/alanmaizon" target="_blank" rel="noopener noreferrer">github.com/alanmaizon</a><br />
-        <a href="https://linkedin.com/in/maizonalan" target="_blank" rel="noopener noreferrer">linkedin.com/in/maizonalan</a>
-      </p>
+      <nav class="site-nav" aria-label="Primary">
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#projects">Projects</a>
+        <a href="#how-i-work">How I Work</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <div class="header-controls">
+        <div class="theme-control" role="group" aria-label="Color theme">
+          <button class="theme-option" type="button" data-theme-choice="system" aria-pressed="false" title="Use system theme">
+            Auto
+          </button>
+          <button class="theme-option" type="button" data-theme-choice="light" aria-pressed="false" title="Use light theme">
+            Light
+          </button>
+          <button class="theme-option" type="button" data-theme-choice="dark" aria-pressed="false" title="Use dark theme">
+            Dark
+          </button>
+        </div>
+
+        <a class="header-action" href="cv.pdf" download="Alan-Maizon-CV.pdf">Download CV</a>
+      </div>
     </header>
 
-    <hr />
+    <main id="content">
+      <section class="section hero-section" id="home" data-reveal>
+        <div class="hero-copy">
+          <p class="eyebrow">Based in Enniskerry, Co. Wicklow, Ireland</p>
+          <h1>
+            Careful full-stack engineering for
+            <span class="accent-line">integrated web systems.</span>
+          </h1>
+          <p class="hero-intro">
+            I build software with a troubleshooting mindset. My background in on-site IT support,
+            production environment discipline, and structured documentation translates into
+            cleaner APIs, steadier workflows, and calm debugging when systems misbehave.
+          </p>
+          <p class="hero-context">
+            The strongest proof is in the projects: a React and Django donation platform with
+            payment workflows, an AWS-oriented Next.js and FastAPI drafting workspace, and a
+            modular proof-of-concept knowledge engine built around explicit system boundaries.
+          </p>
 
-    <!-- PROFILE -->
-    <section>
-      <h2>Profile</h2>
-      <p>
-        Aspiring Software Developer with hands-on experience building backend systems, automation tools, and structured applications using Python and JavaScript. Comfortable working independently and within team environments, with experience in cloud infrastructure and production processes. Strong interest in learning industry best practices in software development, testing, and scalable system design through the Google Software Development Apprenticeship.
-      </p>
-    </section>
+          <ul class="proof-strip" aria-label="Core technical proof points">
+            <li>Django and React payment workflow</li>
+            <li>Next.js, FastAPI, and AWS integration</li>
+            <li>APIs, SQL, Docker, testing, and CI</li>
+          </ul>
 
-    <hr />
+          <div class="hero-actions">
+            <a class="button button-primary" href="#projects">View Projects</a>
+            <a class="button button-secondary" href="cv.pdf" download="Alan-Maizon-CV.pdf">Download CV</a>
+            <a class="button button-ghost" href="https://github.com/alanmaizon" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a class="button button-ghost" href="https://linkedin.com/in/maizonalan" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a class="button button-ghost" href="mailto:maizonalan@gmail.com">Email</a>
+          </div>
+        </div>
+      </section>
 
-    <!-- TECHNICAL SKILLS -->
-    <section>
-      <h2>Technical Skills</h2>
-      <p>
-        <strong>Languages:</strong> Python, JavaScript/TypeScript, SQL<br />
-        <strong>Frameworks:</strong> FastAPI, Django, React<br />
-        <strong>Foundations:</strong> Data structures (lists, dictionaries, queues), REST APIs, input validation<br />
-        <strong>Tools:</strong> Git, Docker, AWS fundamentals (EC2, IAM, S3), CI/CD basics
-      </p>
-    </section>
+      <section class="section" id="about" data-reveal>
+        <div class="section-heading">
+          <p class="eyebrow">About</p>
+          <h2>Grounded engineering, not generic positioning</h2>
+        </div>
 
-    <hr />
+        <div class="about-grid">
+          <div class="about-copy">
+            <p>
+              I am an early-career software engineer with hands-on experience building web
+              applications and a prior background in diagnosing technical issues in real
+              environments. That combination makes me careful with interfaces, attentive to
+              failure modes, and comfortable moving between user needs and system detail.
+            </p>
+            <p>
+              I work best in teams where engineering, product, design, and operations stay close
+              to the same system. I am especially motivated by software that needs clean
+              integration between frontend, backend, data, and the people relying on it.
+            </p>
+          </div>
 
-    <!-- PROJECTS -->
-    <section>
-      <h2>Projects</h2>
+          <div class="fact-stack">
+            <article class="surface">
+              <p class="surface-label">Current focus</p>
+              <p>
+                Early-career full-stack roles where I can contribute under guidance, communicate
+                clearly, and grow quickly on real product systems.
+              </p>
+            </article>
 
-      <article>
-        <h3>Nebula — Document Processing Application</h3>
-        <p class="project-link"><a href="https://github.com/alanmaizon/nebula" target="_blank" rel="noopener noreferrer">github.com/alanmaizon/nebula</a></p>
-        <ul>
-          <li>Built backend APIs in Python to process structured document inputs</li>
-          <li>Implemented JSON schema validation for reliable outputs</li>
-          <li>Designed modular ingestion, processing, and export components</li>
-          <li>Used dictionary-based data mapping for efficient lookups</li>
-        </ul>
-      </article>
+            <article class="surface">
+              <p class="surface-label">Recent software study</p>
+              <ul class="compact-list">
+                <li>Certificate in Science in Computing / National College of Ireland</li>
+                <li>Diploma in Software Development / UCD Professional Academy</li>
+              </ul>
+            </article>
 
-      <article>
-        <h3>Siamese — Incident Log Analysis Tool</h3>
-        <p class="project-link"><a href="https://github.com/alanmaizon/siamese" target="_blank" rel="noopener noreferrer">github.com/alanmaizon/siamese</a></p>
-        <ul>
-          <li>Developed Python system to convert unstructured logs into structured reports</li>
-          <li>Implemented parsing and data aggregation to reconstruct timelines</li>
-          <li>Applied validation checks to ensure consistent output format</li>
-        </ul>
-      </article>
+            <article class="surface">
+              <p class="surface-label">Core strengths</p>
+              <ul class="compact-list">
+                <li>Analytical problem solving and issue isolation</li>
+                <li>Workflow improvement and structured documentation</li>
+                <li>Clear communication with technical and non-technical stakeholders</li>
+              </ul>
+            </article>
+          </div>
+        </div>
+      </section>
 
-      <article>
-        <h3>Automation Scripts — Content Processing</h3>
-        <ul>
-          <li>Built scripts processing 1,000+ audio files</li>
-          <li>Reduced manual workload by ~50%</li>
-          <li>Standardized file handling for operational consistency</li>
-        </ul>
-      </article>
-    </section>
+      <section class="section" id="projects" data-reveal>
+        <div class="section-heading">
+          <p class="eyebrow">Selected Projects</p>
+          <h2>Proof over claims</h2>
+          <p class="section-intro">
+            These are the projects that best represent how I think about full-stack applications,
+            APIs, data handling, cloud exposure, and reliable software behaviour.
+          </p>
+        </div>
 
-    <hr />
+        <article class="project-card project-card-featured">
+          <div class="project-header">
+            <div>
+              <p class="project-kicker">Lead case study</p>
+              <h3>Love That Gives Back</h3>
+              <p class="project-summary">
+                A full-stack fundraising platform for personal celebrations, built around a public
+                guest donation flow and a private organiser dashboard.
+              </p>
+            </div>
+            <div class="project-links">
+              <span class="role-chip">Full-stack web app</span>
+              <a href="https://github.com/alanmaizon/lovethatgivesback" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+          </div>
 
-<!-- PROFESSIONAL EXPERIENCE -->
-<section>
-  <h2>Professional Experience</h2>
+          <div class="project-layout">
+            <div class="project-content">
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Problem</h4>
+                  <p>
+                    Guests need a simple, trustworthy donation experience. Event hosts need
+                    visibility into donations without exposing payment logic or making public users
+                    create accounts just to contribute.
+                  </p>
+                </section>
 
-  <article>
-    <h3>Amazon Web Services — Data Centre Technician</h3>
-    <p class="meta">Dublin, Ireland | Jul 2023 – Nov 2023</p>
-    <ul>
-      <li>Worked within high-availability cloud infrastructure environments supporting production workloads</li>
-      <li>Followed structured change-management and security procedures under strict SLA standards</li>
-      <li>Diagnosed hardware issues and contributed to maintaining service reliability</li>
-      <li>Authored technical documentation improving onboarding clarity and operational consistency</li>
-    </ul>
-  </article>
+                <section class="case-block">
+                  <h4>Approach</h4>
+                  <p>
+                    I structured the product as a public event experience plus an authenticated
+                    dashboard. Guests can browse an event page, choose a linked charity, and
+                    complete a donation without login, while hosts manage event details and review
+                    donation activity separately.
+                  </p>
+                </section>
 
-  <article>
-    <h3>Sacred Space — Content Editor</h3>
-    <p class="meta">Dublin, Ireland | Jun 2024 – Present</p>
-    <ul>
-      <li>Developed Python automation scripts processing 1,000+ audio files, reducing manual workload by ~50%</li>
-      <li>Identified workflow inefficiencies and implemented repeatable publishing processes</li>
-      <li>Standardized content handling procedures to improve operational reliability</li>
-      <li>Communicated technical improvements clearly to non-technical stakeholders</li>
-    </ul>
-  </article>
+                <section class="case-block">
+                  <h4>Architecture</h4>
+                  <p>
+                    React and Vite handle the public pages and dashboard routes. A Django REST
+                    backend manages event, charity, and donation APIs, with Stripe checkout and
+                    webhook handling controlling payment state transitions.
+                  </p>
+                </section>
 
-  <article>
-    <h3>David Cullen Jewellers — Jewellery Engraver</h3>
-    <p class="meta">Dublin, Ireland | Nov 2023 – Apr 2025</p>
-    <ul>
-      <li>Executed precision engraving based on detailed client specifications</li>
-      <li>Maintained strict quality control standards on high-value items</li>
-      <li>Developed structured workflow for handling custom requests to reduce errors</li>
-      <li>Coordinated order processes between retail and workshop operations</li>
-    </ul>
-  </article>
+                <section class="case-block">
+                  <h4>Stack</h4>
+                  <p>
+                    React 19, Vite, Django 5, Django REST Framework, Stripe, AWS Cognito, Redis,
+                    Celery, SQS, Lambda, SQL-backed data models, and automated tests across both
+                    frontend and backend.
+                  </p>
+                </section>
+              </div>
 
-  <article>
-    <h3>Starbucks — Assistant Store Manager</h3>
-    <p class="meta">Dublin, Ireland | Jun 2022 – May 2023</p>
-    <ul>
-      <li>Led team of 10+ staff, coordinating daily operations and quality standards</li>
-      <li>Trained and mentored new team members, improving operational consistency</li>
-      <li>Managed scheduling and task delegation during high-demand periods</li>
-      <li>Implemented workflow improvements to reduce service bottlenecks</li>
-    </ul>
-  </article>
+              <section class="case-block">
+                <h4>Technical decisions</h4>
+                <ul class="detail-list">
+                  <li>Kept the guest donation path account-free to reduce friction on a public payment journey.</li>
+                  <li>Created Stripe sessions on the server so payment configuration and secrets stay off the client.</li>
+                  <li>Used webhook-driven status updates and duplicate-processing guards for succeeded, failed, expired, and refunded donation states.</li>
+                  <li>Added rate limiting, health checks, and operational logging around public-facing donation endpoints.</li>
+                </ul>
+              </section>
 
-  <article>
-    <h3>SIE Informática — Technical Support Specialist</h3>
-    <p class="meta">Córdoba, Argentina | Apr 2016 – Oct 2020</p>
-    <ul>
-      <li>Provided post-sales technical support for software and hardware solutions</li>
-      <li>Diagnosed and resolved system issues across diverse client environments</li>
-      <li>Authored internal knowledge base documentation reducing repeat incidents</li>
-      <li>Delivered technical training sessions to improve product understanding</li>
-    </ul>
-  </article>
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Outcome</h4>
+                  <p>
+                    The result is a real end-to-end web application with public traffic, private
+                    management workflows, payment processing, and transaction-aware state
+                    handling. The organiser dashboard surfaces event controls, raised totals, and
+                    donor counts rather than leaving the data buried in admin screens.
+                  </p>
+                </section>
 
-  <article>
-    <h3>Telefónica — Technical Support Analyst</h3>
-    <p class="meta">Córdoba, Argentina | Dec 2015 – May 2016</p>
-    <ul>
-      <li>Resolved software and connectivity issues for enterprise clients</li>
-      <li>Documented technical issues and solutions to reduce recurring problems</li>
-      <li>Collaborated with development teams to report product stability improvements</li>
-    </ul>
-  </article>
+                <section class="case-block">
+                  <h4>Why it matters for integrated engineering teams</h4>
+                  <p>
+                    This project demonstrates frontend and backend integration, API design,
+                    relational data handling, testing awareness, and careful treatment of
+                    user-facing transactions.
+                  </p>
+                </section>
+              </div>
+            </div>
 
-</section>
+            <aside class="project-proof">
+              <section class="surface">
+                <p class="surface-label">System flow</p>
+                <div class="flow-chain" aria-label="Love That Gives Back architecture flow">
+                  <span>React routes</span>
+                  <span>Django REST API</span>
+                  <span>Stripe checkout and webhooks</span>
+                  <span>Dashboard and donation states</span>
+                </div>
+              </section>
 
-    <hr />
+              <section class="surface">
+                <p class="surface-label">Evidence</p>
+                <ul class="compact-list">
+                  <li>Public event pages plus authenticated dashboard endpoints</li>
+                  <li>Webhook tests for succeeded, expired, refunded, and replay-safe flows</li>
+                  <li>More than 200 automated tests across frontend and backend files</li>
+                </ul>
+              </section>
+            </aside>
+          </div>
+        </article>
 
-    <!-- EDUCATION -->
-    <section>
-      <h2>Education</h2>
-      <ul class="education-list">
-        <li><strong>Certificate in Science in Computing</strong> — National College of Ireland (2025–2026)</li>
-        <li><strong>Diploma in Full Stack Software Development</strong> — UCD Professional Academy (2024–2025)</li>
-        <li><strong>Certificate in Artificial Intelligence</strong> — IES University College, Argentina (2019–2020)</li>
-      </ul>
-    </section>
+        <article class="project-card">
+          <div class="project-header">
+            <div>
+              <p class="project-kicker">Cloud and integration case study</p>
+              <h3>Nebula</h3>
+              <p class="project-summary">
+                A drafting workspace that ingests source documents, extracts requirements,
+                generates cited sections, computes coverage, and packages exportable submission
+                artifacts.
+              </p>
+            </div>
+            <div class="project-links">
+              <span class="role-chip">Cloud-oriented full-stack system</span>
+              <a href="https://github.com/alanmaizon/nebula" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+          </div>
 
-  </main>
+          <div class="project-layout">
+            <div class="project-content">
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Problem</h4>
+                  <p>
+                    Document-heavy drafting workflows are slow, difficult to trace, and easy to
+                    derail when requirements are missed or evidence is weak.
+                  </p>
+                </section>
 
-  <footer>
-    <p>&copy; 2026 Alan Maizon</p>
-  </footer>
+                <section class="case-block">
+                  <h4>Approach</h4>
+                  <p>
+                    I broke the system into explicit stages: upload and parsing, requirement
+                    extraction, cited section generation, coverage analysis, unresolved evidence
+                    review, and export.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Architecture</h4>
+                  <p>
+                    The frontend is a Next.js workspace. The backend is a FastAPI pipeline with
+                    isolated services for parsing, validation, coverage, and export. Local
+                    development uses SQLite and filesystem storage, while the AWS deployment path
+                    is designed around RDS, S3, Bedrock, and Cognito-aware routing.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Stack</h4>
+                  <p>
+                    Next.js, React 19, FastAPI, SQLite, Postgres-ready data paths, S3, Amazon
+                    Bedrock, Cognito, Docker, GitHub Actions, and typed frontend utilities for
+                    traceability and quality diagnostics.
+                  </p>
+                </section>
+              </div>
+
+              <section class="case-block">
+                <h4>Technical decisions</h4>
+                <ul class="detail-list">
+                  <li>Kept parsing, generation, coverage, and export as separate modules so failures are easier to diagnose and improve.</li>
+                  <li>Added quality-signal panels and unresolved-gap views so users can see weak inputs before exporting output.</li>
+                  <li>Built a cloud-ready deployment path with AWS readiness scripts covering ECS, RDS, S3, CloudFront routing, and config checks.</li>
+                  <li>Protected delivery quality with backend tests, type checks, build verification, and docker smoke steps in CI.</li>
+                </ul>
+              </section>
+
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Outcome</h4>
+                  <p>
+                    Nebula shows how I structure a system with clear boundaries, explicit API
+                    contracts, and a realistic deployment story rather than a single demo path.
+                    It is the clearest example in my work of combining product workflow, backend
+                    logic, and cloud-aware engineering decisions.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Why it matters for integrated engineering teams</h4>
+                  <p>
+                    This project demonstrates API design, document and data workflow handling,
+                    cloud exposure, CI discipline, and the kind of cross-cutting engineering that
+                    benefits from close collaboration with product, design, and operational
+                    stakeholders.
+                  </p>
+                </section>
+              </div>
+            </div>
+
+            <aside class="project-proof">
+              <section class="surface">
+                <p class="surface-label">System flow</p>
+                <div class="flow-chain" aria-label="Nebula architecture flow">
+                  <span>Next.js workspace</span>
+                  <span>FastAPI pipeline</span>
+                  <span>Storage, validation, and coverage</span>
+                  <span>Export bundles and diagnostics</span>
+                </div>
+              </section>
+
+              <section class="surface">
+                <p class="surface-label">Evidence</p>
+                <ul class="compact-list">
+                  <li>95 backend tests plus CI build, typecheck, and docker smoke coverage</li>
+                  <li>Documented AWS deployment path using RDS, S3, Bedrock, Cognito, and CloudFront routing</li>
+                  <li>Frontend diagnostics panels for traceability, missing evidence, and quality review</li>
+                </ul>
+              </section>
+            </aside>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <div class="project-header">
+            <div>
+              <p class="project-kicker">Systems-thinking proof of concept</p>
+              <h3>Entropy</h3>
+              <p class="project-summary">
+                A proof-of-concept continual-learning knowledge engine that ingests information,
+                generates hypotheses, critiques them, and updates a world model over time.
+              </p>
+            </div>
+            <div class="project-links">
+              <span class="role-chip">Proof-of-concept system</span>
+              <a href="https://github.com/alanmaizon/entropy" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+          </div>
+
+          <div class="project-layout">
+            <div class="project-content">
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Problem</h4>
+                  <p>
+                    I wanted to explore continual learning as a software architecture problem,
+                    not just as prompt experimentation.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Approach</h4>
+                  <p>
+                    I designed a system with separate ingestion, memory, reasoning, orchestration,
+                    and API layers so each concern could be tested and evolved independently.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Architecture</h4>
+                  <p>
+                    FastAPI exposes ingestion and reasoning endpoints. The backend coordinates
+                    vector memory, graph memory, and episodic memory, while a React and Vite
+                    frontend acts as a lightweight dashboard over the system.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Stack</h4>
+                  <p>
+                    FastAPI, React, Vite, Qdrant, Neo4j, SQLite, Pydantic settings, Docker
+                    Compose, and pytest.
+                  </p>
+                </section>
+              </div>
+
+              <section class="case-block">
+                <h4>Technical decisions</h4>
+                <ul class="detail-list">
+                  <li>Separated vector, graph, and episodic memory so each one has a clear role in retrieval, structure, and history.</li>
+                  <li>Kept API endpoints narrow around ingestion, hypothesis generation, reasoning cycles, and graph inspection.</li>
+                  <li>Used Docker Compose to stand up local supporting infrastructure instead of hiding dependencies behind assumptions.</li>
+                  <li>Documented the architecture heavily so the proof-of-concept remains understandable as the system grows.</li>
+                </ul>
+              </section>
+
+              <div class="case-grid">
+                <section class="case-block">
+                  <h4>Outcome</h4>
+                  <p>
+                    Entropy is intentionally framed as a proof of concept, but it still shows
+                    disciplined modular design, real API surfaces, infrastructure awareness, and a
+                    test suite covering key behaviors.
+                  </p>
+                </section>
+
+                <section class="case-block">
+                  <h4>Why it matters for integrated engineering teams</h4>
+                  <p>
+                    This work demonstrates curiosity, systems thinking, interface separation, and
+                    a willingness to decompose complex ideas into maintainable parts.
+                  </p>
+                </section>
+              </div>
+            </div>
+
+            <aside class="project-proof">
+              <section class="surface">
+                <p class="surface-label">System flow</p>
+                <div class="flow-chain" aria-label="Entropy architecture flow">
+                  <span>FastAPI API</span>
+                  <span>Reasoning loop</span>
+                  <span>Qdrant, Neo4j, SQLite</span>
+                  <span>React dashboard</span>
+                </div>
+              </section>
+
+              <section class="surface">
+                <p class="surface-label">Evidence</p>
+                <ul class="compact-list">
+                  <li>Documented ingestion to hypothesis to critique to update loop</li>
+                  <li>Docker Compose stack for local Qdrant and Neo4j services</li>
+                  <li>30 pytest tests across API and reasoning modules</li>
+                </ul>
+              </section>
+            </aside>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="how-i-work" data-reveal>
+        <div class="section-heading">
+          <p class="eyebrow">How I Work</p>
+          <h2>What I bring to integrated engineering teams</h2>
+          <p class="section-intro">
+            My non-traditional background matters because it shaped how I approach reliability,
+            communication, and cross-functional work.
+          </p>
+        </div>
+
+        <div class="work-grid">
+          <article class="surface">
+            <h3>Troubleshooting and issue isolation</h3>
+            <p>
+              At Spirit Radio I handled Windows, network, and configuration problems on site.
+              That work taught me to narrow unknowns quickly, reproduce failures, and communicate
+              fixes clearly while people are waiting on the result.
+            </p>
+          </article>
+
+          <article class="surface">
+            <h3>Production environment discipline</h3>
+            <p>
+              At AWS I worked around live server infrastructure and structured change procedures.
+              That reinforced habits I now bring into software work: move carefully, verify
+              assumptions, respect dependencies, and escalate cleanly when a boundary matters.
+            </p>
+          </article>
+
+          <article class="surface">
+            <h3>Documentation and workflow improvement</h3>
+            <p>
+              At Sacred Space I wrote Bash scripts for audio processing tasks and standardized
+              recurring steps. I tend to leave systems with clearer runbooks, less repetition, and
+              fewer avoidable handoff problems.
+            </p>
+          </article>
+        </div>
+
+        <p class="continuity-note">
+          Earlier operations and customer-facing roles also strengthened prioritization, empathy,
+          and ownership. I treat those as engineering assets, not unrelated history.
+        </p>
+      </section>
+
+      <section class="section" id="skills" data-reveal>
+        <div class="section-heading">
+          <p class="eyebrow">Technical Skills</p>
+          <h2>Grouped by practical use</h2>
+        </div>
+
+        <div class="skills-grid">
+          <article class="surface skill-card">
+            <h3>Languages</h3>
+            <p>Python, JavaScript, SQL, Bash</p>
+          </article>
+
+          <article class="surface skill-card">
+            <h3>Frontend</h3>
+            <p>React, Next.js, Vite, semantic HTML, responsive CSS, accessibility-minded UI work</p>
+          </article>
+
+          <article class="surface skill-card">
+            <h3>Backend</h3>
+            <p>Django, Django REST Framework, FastAPI, REST APIs, authentication flows, webhooks, validation</p>
+          </article>
+
+          <article class="surface skill-card">
+            <h3>Data</h3>
+            <p>SQL-backed workflows, relational modelling, SQLite, Postgres-ready application paths, export pipelines</p>
+          </article>
+
+          <article class="surface skill-card">
+            <h3>Cloud / Dev Tools</h3>
+            <p>AWS, Docker, Git, GitHub Actions, CI concepts, Redis, Linux, macOS, and structured debugging</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section contact-section" id="contact" data-reveal>
+        <div class="contact-shell">
+          <div class="contact-lead surface surface-strong">
+            <p class="eyebrow">Contact</p>
+            <h2>Clear next step for the right role</h2>
+            <p class="contact-lede">
+              I am looking for early-career full-stack roles where careful implementation,
+              debugging discipline, and strong cross-functional communication matter.
+            </p>
+            <p class="contact-support">
+              If this portfolio feels aligned, email is the best first step. I am happy to share
+              more context on the projects, my CV, or how I tend to contribute inside integrated
+              engineering teams.
+            </p>
+
+            <div class="closing-actions">
+              <a class="button button-primary" href="mailto:maizonalan@gmail.com">Email Alan</a>
+              <a class="button button-secondary" href="cv.pdf" download="Alan-Maizon-CV.pdf">Download CV</a>
+            </div>
+
+            <ul class="contact-points">
+              <li>Based in Enniskerry, Co. Wicklow, Ireland</li>
+              <li>Interested in integrated web product and platform work</li>
+              <li>Comfortable collaborating across engineering, product, and operational teams</li>
+            </ul>
+          </div>
+
+          <div class="contact-detail-panel">
+            <div class="contact-panel-heading">
+              <p class="eyebrow">Profiles and references</p>
+              <h3>Everything needed for a fast first pass</h3>
+              <p class="contact-panel-copy">
+                Email first, then GitHub, LinkedIn, and the CV for supporting context.
+              </p>
+            </div>
+
+            <div class="contact-grid">
+              <a class="contact-card contact-card-primary" href="mailto:maizonalan@gmail.com">
+                <span>Email</span>
+                <strong>maizonalan@gmail.com</strong>
+                <small>Best route for recruiter outreach and role discussions.</small>
+              </a>
+
+              <a class="contact-card" href="https://github.com/alanmaizon" target="_blank" rel="noopener noreferrer">
+                <span>GitHub</span>
+                <strong>github.com/alanmaizon</strong>
+                <small>Source code and project implementation detail.</small>
+              </a>
+
+              <a class="contact-card" href="https://linkedin.com/in/maizonalan" target="_blank" rel="noopener noreferrer">
+                <span>LinkedIn</span>
+                <strong>linkedin.com/in/maizonalan</strong>
+                <small>Professional profile and role context.</small>
+              </a>
+
+              <a class="contact-card" href="cv.pdf" download="Alan-Maizon-CV.pdf">
+                <span>CV</span>
+                <strong>Download PDF</strong>
+                <small>Condensed version of the same narrative.</small>
+              </a>
+
+              <div class="contact-card contact-card-static">
+                <span>Location</span>
+                <strong>Enniskerry, Co. Wicklow</strong>
+                <small>Ireland based, open to conversations about fit and team context.</small>
+              </div>
+            </div>
+
+            <p class="contact-panel-note">
+              If there looks like a fit, email is the easiest way to start the conversation.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Alan Maizon / Full-stack software engineer / Wicklow, Ireland</p>
+    </footer>
+  </div>
 </body>
 </html>

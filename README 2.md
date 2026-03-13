@@ -1,19 +1,6 @@
-# Alan Maizon
+# Alan Maizon Portfolio
 
-Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonalan) · [GitHub](https://github.com/alanmaizon)
-
----
-
-## Activity
-
-
-<img src="https://streak-stats.demolab.com?user=alanmaizon" alt="GitHub streak" />
-
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon" alt="Activity graph" />
-
-![Snake animation](https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg)
-
----
+Static portfolio site for Alan Maizon, positioned for early-career full-stack software engineering roles.
 
 ## Focus
 
@@ -25,8 +12,6 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 - Recruiter-friendly contact surface with CV download, GitHub, LinkedIn, and email
 - Lightweight static implementation with semantic HTML, tokenized CSS, and small progressive enhancement JavaScript
 
----
-
 ## Local Files
 
 - `index.html`: main portfolio page
@@ -35,18 +20,8 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 - `cv.pdf`: downloadable CV
 - `favicon.svg`, `og-image.svg`, `site.webmanifest`, `robots.txt`, `sitemap.xml`: metadata and preview assets
 
----
-
 ## Featured Project Sources
 
 - `Love That Gives Back`: <https://github.com/alanmaizon/lovethatgivesback>
 - `Nebula`: <https://github.com/alanmaizon/nebula>
 - `Entropy`: <https://github.com/alanmaizon/entropy>
-
----
-
-## Connect
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-maizonalan-blue?logo=linkedin)](https://linkedin.com/in/maizonalan)
-[![Email](https://img.shields.io/badge/Email-alanmaizon%40hotmail.com-informational?logo=gmail)](mailto:maizonalan@gmail.com)
-[![Portfolio](https://img.shields.io/badge/Portfolio-alanmaizon.github.io-black?logo=github)](https://alanmaizon.github.io/alanmaizon)

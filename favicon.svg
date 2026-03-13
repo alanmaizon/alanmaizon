@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Alan Maizon favicon</title>
+  <defs>
+    <linearGradient id="bg" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#183247" />
+      <stop offset="100%" stop-color="#2a5978" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#bg)" />
+  <path d="M18 44L27 20L36 44" fill="none" stroke="#f7f2ea" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
+  <path d="M22 34H32" fill="none" stroke="#f7f2ea" stroke-linecap="round" stroke-width="4" />
+  <path d="M41 44V20L49 33V20" fill="none" stroke="#d5e4ef" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" />
+</svg>
