@@ -19,10 +19,15 @@ const siteNav = document.querySelector(".site-nav");
 const navIndicator = siteNav?.querySelector(".nav-indicator") ?? null;
 const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]')];
 const sections = [...document.querySelectorAll("main section[id]")];
+const mobileToggle = document.querySelector(".mobile-toggle");
+const mobilePanel = document.querySelector(".mobile-panel");
 
 let activeSectionId = "";
 let previewLink = null;
 let refreshFrame = 0;
+let mobileMenuOpen = false;
+
+const MOBILE_BREAKPOINT = 768;
 
 const isThemeChoice = (value) => value === "system" || value === "light" || value === "dark";
 
@@ -235,6 +240,63 @@ const attachThemeEvents = () => {
   }
 };
 
+const isMobileViewport = () => window.innerWidth <= MOBILE_BREAKPOINT;
+
+const setMobileMenu = (open) => {
+  if (!mobileToggle || !mobilePanel) {
+    return;
+  }
+
+  mobileMenuOpen = open;
+  mobileToggle.setAttribute("aria-expanded", String(open));
+  mobileToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  mobilePanel.classList.toggle("is-open", open);
+
+  if (!open) {
+    mobileToggle.focus();
+  }
+
+  scheduleRefresh();
+};
+
+const closeMobileMenu = () => {
+  if (mobileMenuOpen) {
+    setMobileMenu(false);
+  }
+};
+
+const attachMobileMenuEvents = () => {
+  if (!mobileToggle || !mobilePanel) {
+    return;
+  }
+
+  mobileToggle.addEventListener("click", () => {
+    setMobileMenu(!mobileMenuOpen);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && mobileMenuOpen) {
+      closeMobileMenu();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      mobileMenuOpen &&
+      siteHeader &&
+      !siteHeader.contains(event.target)
+    ) {
+      closeMobileMenu();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileViewport() && mobileMenuOpen) {
+      setMobileMenu(false);
+    }
+  });
+};
+
 const attachNavEvents = () => {
   if (!siteNav || !navLinks.length) {
     return;
@@ -257,6 +319,10 @@ const attachNavEvents = () => {
       if (targetId) {
         setActiveLink(targetId);
         scheduleRefresh();
+      }
+
+      if (isMobileViewport()) {
+        closeMobileMenu();
       }
     });
   });
@@ -308,6 +374,7 @@ applyTheme(readStoredThemeChoice());
 initializeReveal();
 attachThemeEvents();
 attachNavEvents();
+attachMobileMenuEvents();
 attachLayoutEvents();
 
 if (sections[0]?.id) {
