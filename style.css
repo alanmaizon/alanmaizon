@@ -535,6 +535,10 @@ h3 {
   box-shadow: var(--surface-shadow);
 }
 
+.surface-flow {
+  text-align: center;
+}
+
 .surface-strong {
   background: linear-gradient(180deg, var(--bg-strong), var(--bg-elevated));
   box-shadow: var(--surface-shadow-strong);
