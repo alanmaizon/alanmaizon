@@ -34,6 +34,8 @@
   --accent: #2f5e70;
   --accent-soft: rgba(47, 94, 112, 0.1);
   --accent-strong: #204b5c;
+  --hover-wash: rgba(47, 94, 112, 0.12);
+  --hover-wash-strong: rgba(47, 94, 112, 0.18);
   --pill: rgba(242, 233, 219, 0.95);
   --button-ghost: rgba(255, 249, 239, 0.7);
   --header-bg: rgba(248, 240, 227, 0.82);
@@ -44,11 +46,16 @@
   --body-orb-b: rgba(67, 107, 122, 0.12);
   --grid-major: rgba(47, 94, 112, 0.12);
   --grid-minor: rgba(47, 94, 112, 0.05);
-  --glass-fill: rgba(255, 251, 245, 0.34);
-  --glass-fill-strong: rgba(255, 252, 247, 0.46);
-  --glass-stroke: rgba(255, 255, 255, 0.38);
-  --glass-stroke-strong: rgba(255, 255, 255, 0.54);
-  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  --glass-fill: rgba(255, 255, 255, 0.14);
+  --glass-fill-strong: rgba(255, 255, 255, 0.24);
+  --glass-stroke: rgba(255, 255, 255, 0.46);
+  --glass-stroke-strong: rgba(255, 255, 255, 0.68);
+  --glass-sheen: rgba(255, 255, 255, 0.38);
+  --glass-shadow: 0 24px 64px rgba(84, 67, 47, 0.12);
+  --glass-shadow-strong: 0 32px 84px rgba(84, 67, 47, 0.16);
+  --glass-inset:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 1px 0 0 rgba(255, 255, 255, 0.3);
   --selected-shadow: 0 1px 0 rgba(47, 94, 112, 0.08);
 }
 
@@ -142,8 +149,9 @@ button {
 }
 
 .site-header {
-  position: static;
-  z-index: 10;
+  position: sticky;
+  top: 14px;
+  z-index: 40;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas: "bar nav";
@@ -154,11 +162,14 @@ button {
   border: 1px solid var(--glass-stroke-strong);
   border-radius: var(--radius-xl);
   background:
-    linear-gradient(180deg, rgba(255, 252, 247, 0.42), rgba(248, 240, 227, 0.26)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08) 58%),
+    linear-gradient(180deg, rgba(255, 252, 247, 0.28), rgba(248, 240, 227, 0.16)),
     var(--header-bg);
-  backdrop-filter: blur(18px) saturate(145%);
-  -webkit-backdrop-filter: blur(18px) saturate(145%);
-  box-shadow: var(--surface-shadow), var(--glass-inset);
+  backdrop-filter: blur(26px) saturate(165%);
+  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .header-bar {
@@ -251,8 +262,9 @@ button {
 .site-nav a:hover,
 .site-nav a:focus-visible,
 .site-nav a.is-active {
-  color: var(--text);
-  background: rgba(255, 249, 239, 0.72);
+  color: var(--accent-strong);
+  background: var(--hover-wash);
+  box-shadow: inset 0 0 0 1px rgba(47, 94, 112, 0.08);
 }
 
 .nav-indicator {
@@ -308,8 +320,8 @@ button {
 
 .button-primary:hover,
 .button-primary:focus-visible {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
+  background: #183d4d;
+  border-color: #183d4d;
 }
 
 .button-secondary {
@@ -326,8 +338,10 @@ button {
 .button-secondary:focus-visible,
 .button-ghost:hover,
 .button-ghost:focus-visible {
-  border-color: var(--accent-soft);
-  background: var(--button-ghost);
+  border-color: rgba(47, 94, 112, 0.24);
+  background: var(--hover-wash);
+  color: var(--accent-strong);
+  box-shadow: inset 0 0 0 1px rgba(47, 94, 112, 0.08);
 }
 
 main {
@@ -461,10 +475,14 @@ h3 {
   padding: 24px;
   border: 1px solid var(--glass-stroke);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--glass-fill-strong), rgba(248, 239, 228, 0.22));
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: var(--surface-shadow), var(--glass-inset);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.1) 62%),
+    linear-gradient(180deg, var(--glass-fill-strong), rgba(248, 239, 228, 0.12));
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .surface-flow {
@@ -472,8 +490,10 @@ h3 {
 }
 
 .surface-strong {
-  background: linear-gradient(180deg, rgba(255, 252, 247, 0.5), rgba(248, 239, 228, 0.28));
-  box-shadow: var(--surface-shadow-strong), var(--glass-inset);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.14) 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(248, 239, 228, 0.14));
+  box-shadow: var(--glass-shadow-strong), var(--glass-inset);
 }
 
 .surface-list,
@@ -532,17 +552,22 @@ h3 {
   margin-top: 28px;
   border: 1px solid var(--glass-stroke);
   border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, rgba(255, 252, 247, 0.4), rgba(247, 238, 226, 0.24));
-  backdrop-filter: blur(18px) saturate(145%);
-  -webkit-backdrop-filter: blur(18px) saturate(145%);
-  box-shadow: var(--surface-shadow), var(--glass-inset);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08) 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(247, 238, 226, 0.1));
+  backdrop-filter: blur(26px) saturate(165%);
+  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .project-card-featured {
   background:
-    linear-gradient(135deg, rgba(47, 94, 112, 0.12), transparent 38%),
-    linear-gradient(180deg, rgba(255, 252, 247, 0.48), rgba(247, 238, 226, 0.28));
-  box-shadow: var(--surface-shadow-strong), var(--glass-inset);
+    linear-gradient(135deg, rgba(47, 94, 112, 0.16), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.1) 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(247, 238, 226, 0.12));
+  box-shadow: var(--glass-shadow-strong), var(--glass-inset);
 }
 
 .project-header {
@@ -609,10 +634,14 @@ h3 {
   padding: 22px;
   border: 1px solid var(--glass-stroke);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgba(255, 252, 247, 0.32), rgba(248, 239, 228, 0.18));
-  backdrop-filter: blur(14px) saturate(135%);
-  -webkit-backdrop-filter: blur(14px) saturate(135%);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08) 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(248, 239, 228, 0.08));
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
   box-shadow: var(--glass-inset);
+  overflow: hidden;
+  isolation: isolate;
 }
 
 .case-block h4,
@@ -760,11 +789,15 @@ h3 {
   padding: 22px;
   border: 1px solid var(--glass-stroke);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, rgba(255, 252, 247, 0.36), rgba(248, 239, 228, 0.22));
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: var(--surface-shadow), var(--glass-inset);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.1) 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(248, 239, 228, 0.1));
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
   align-content: start;
+  overflow: hidden;
+  isolation: isolate;
   transition:
     transform var(--duration-fast) ease,
     border-color var(--duration-fast) ease,
@@ -776,7 +809,36 @@ h3 {
   grid-column: 1 / -1;
   border-color: var(--glass-stroke-strong);
   background: linear-gradient(180deg, rgba(255, 252, 247, 0.52), rgba(248, 239, 228, 0.28));
-  box-shadow: var(--surface-shadow-strong), var(--glass-inset);
+  box-shadow: var(--glass-shadow-strong), var(--glass-inset);
+}
+
+.site-header::after,
+.surface::after,
+.project-card::after,
+.case-block::after,
+.contact-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(125deg, rgba(255, 255, 255, 0.42), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 44%);
+  opacity: 0.95;
+  z-index: -1;
+}
+
+.site-header::before,
+.surface::before,
+.project-card::before,
+.case-block::before,
+.contact-card::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .contact-card span {
