@@ -22,8 +22,16 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
   - Love That Gives Back
   - Nebula
   - Entropy
+  - my-voicebank
 - Recruiter-friendly contact surface with CV download, GitHub, LinkedIn, and email
 - Lightweight static implementation with semantic HTML, tokenized CSS, and small progressive enhancement JavaScript
+
+---
+
+## Highlighted Build
+
+- `my-voicebank`: a reproducible pipeline for training DiffSinger singing voice synthesis models from your own recordings, built around the OpenVPI ecosystem with labeling, forced alignment, note extraction, and training workflows for Colab, GCE, and local Mac  
+  <https://github.com/alanmaizon/my-voicebank>
 
 ---
 
@@ -42,6 +50,7 @@ Enniskerry, Co. Wicklow, Ireland · [LinkedIn](https://linkedin.com/in/maizonala
 - `Love That Gives Back`: <https://github.com/alanmaizon/lovethatgivesback>
 - `Nebula`: <https://github.com/alanmaizon/nebula>
 - `Entropy`: <https://github.com/alanmaizon/entropy>
+- `my-voicebank`: <https://github.com/alanmaizon/my-voicebank>
 
 ---
 

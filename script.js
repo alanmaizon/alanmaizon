@@ -2,17 +2,8 @@ const root = document.documentElement;
 root.classList.remove("no-js");
 root.classList.add("js");
 
-const THEME_STORAGE_KEY = "alanmaizon-theme-choice";
-const THEME_COLORS = {
-  light: "#f3efe8",
-  dark: "#0f151c",
-};
-
-const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
 const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-const themeMeta = document.querySelector('meta[name="theme-color"]');
-const themeButtons = [...document.querySelectorAll(".theme-option")];
 const revealElements = [...document.querySelectorAll("[data-reveal]")];
 const siteHeader = document.querySelector(".site-header");
 const siteNav = document.querySelector(".site-nav");
@@ -28,49 +19,6 @@ let refreshFrame = 0;
 let mobileMenuOpen = false;
 
 const MOBILE_BREAKPOINT = 768;
-
-const isThemeChoice = (value) => value === "system" || value === "light" || value === "dark";
-
-const readStoredThemeChoice = () => {
-  try {
-    const storedChoice = localStorage.getItem(THEME_STORAGE_KEY);
-    return isThemeChoice(storedChoice) ? storedChoice : "system";
-  } catch (error) {
-    return "system";
-  }
-};
-
-const getResolvedTheme = (themeChoice) =>
-  themeChoice === "system" ? (prefersDarkScheme.matches ? "dark" : "light") : themeChoice;
-
-const syncThemeButtons = (themeChoice) => {
-  themeButtons.forEach((button) => {
-    const isPressed = button.dataset.themeChoice === themeChoice;
-    button.setAttribute("aria-pressed", String(isPressed));
-  });
-};
-
-const applyTheme = (themeChoice, { persist = false } = {}) => {
-  const resolvedTheme = getResolvedTheme(themeChoice);
-
-  root.dataset.themeChoice = themeChoice;
-  root.dataset.theme = resolvedTheme;
-  syncThemeButtons(themeChoice);
-
-  if (themeMeta) {
-    themeMeta.setAttribute("content", THEME_COLORS[resolvedTheme]);
-  }
-
-  if (persist) {
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, themeChoice);
-    } catch (error) {
-      // Ignore storage failures and keep the in-memory theme state.
-    }
-  }
-
-  scheduleRefresh();
-};
 
 const getLiveHeaderOffset = () => {
   if (!siteHeader) {
@@ -214,32 +162,6 @@ const initializeReveal = () => {
   revealElements.forEach((element) => revealObserver.observe(element));
 };
 
-const attachThemeEvents = () => {
-  themeButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextChoice = button.dataset.themeChoice;
-
-      if (!isThemeChoice(nextChoice)) {
-        return;
-      }
-
-      applyTheme(nextChoice, { persist: true });
-    });
-  });
-
-  const handleSchemeChange = () => {
-    if ((root.dataset.themeChoice || "system") === "system") {
-      applyTheme("system");
-    }
-  };
-
-  if (typeof prefersDarkScheme.addEventListener === "function") {
-    prefersDarkScheme.addEventListener("change", handleSchemeChange);
-  } else if (typeof prefersDarkScheme.addListener === "function") {
-    prefersDarkScheme.addListener(handleSchemeChange);
-  }
-};
-
 const isMobileViewport = () => window.innerWidth <= MOBILE_BREAKPOINT;
 
 const setMobileMenu = (open) => {
@@ -370,9 +292,7 @@ const attachLayoutEvents = () => {
   }
 };
 
-applyTheme(readStoredThemeChoice());
 initializeReveal();
-attachThemeEvents();
 attachNavEvents();
 attachMobileMenuEvents();
 attachLayoutEvents();
