@@ -66,7 +66,7 @@ Enniskerry, Co. Wicklow, Ireland
       <td><a href="https://github.com/alanmaizon/entropy">Repo</a></td>
     </tr>
     <tr>
-      <td><strong>my-voicebank</strong></td>
+      <td><strong>My Voicebank</strong></td>
       <td>A reproducible pipeline for training DiffSinger singing voice models from your own recordings — wraps the OpenVPI ecosystem with labeling, forced alignment, note extraction, and training workflows for Colab, GCE, and local Mac.</td>
       <td><a href="https://github.com/alanmaizon/my-voicebank">Repo</a></td>
     </tr>
