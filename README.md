@@ -51,7 +51,7 @@ Enniskerry, Co. Wicklow, Ireland
   </thead>
   <tbody>
     <tr>
-      <td><strong>Love That Gives Back</strong></td>
+      <td><strong>Love In Action/strong></td>
       <td>A platform that connects generosity with impact — full-stack Django application with payment integration and real-time donation tracking.</td>
       <td><a href="https://github.com/alanmaizon/lovethatgivesback">Repo</a></td>
     </tr>
