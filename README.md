@@ -2,11 +2,11 @@
 
 # Alan Maizon
 
-**Full-Stack Software Engineer**
+**Full-Stack Software Engineer / AI & ML**
 
 Enniskerry, Co. Wicklow, Ireland
 
-*Turns messy workflows into clear, reliable software.*
+*Working on turning messy workflows into clear, reliable software.*
 
 <br>
 
