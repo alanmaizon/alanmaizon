@@ -2,15 +2,15 @@
 
 # Alan Maizon
 
-<br><br>
-
-<img src="https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg" alt="Contribution snake animation" />
-
 **Full-Stack Software Engineer / AI & ML**
 
 Enniskerry, Co. Wicklow, Ireland
 
 *Working on turning messy workflows into clear, reliable software.*
+
+<br>
+
+<img src="https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg" alt="Contribution snake animation" />
 
 <br>
 
