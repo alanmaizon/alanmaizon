@@ -2,6 +2,10 @@
 
 # Alan Maizon
 
+<br><br>
+
+<img src="https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg" alt="Contribution snake animation" />
+
 **Full-Stack Software Engineer / AI & ML**
 
 Enniskerry, Co. Wicklow, Ireland
@@ -87,10 +91,6 @@ Enniskerry, Co. Wicklow, Ireland
 <br><br>
 
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=alanmaizon&theme=github-compact&hide_border=true" alt="Contribution activity graph" />
-
-<br><br>
-
-<img src="https://raw.githubusercontent.com/alanmaizon/alanmaizon/output/github-contribution-grid-snake.svg" alt="Contribution snake animation" />
 
 </div>
 
