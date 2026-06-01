@@ -1,0 +1,50 @@
+You are an expert front-end designer and developer. Build a single-file, production-ready marketing landing page for a music-teaching business. Output ONE self-contained `index.html` with all CSS in a `<style>` block and all JS in a `<script>` block — no build step, no frameworks, deployable to static hosting (AWS S3 + CloudFront) by uploading one file. Load fonts from Google Fonts via `<link>`.
+
+## The business
+- Brand: **Play & Sing with Alan** (English) / **Toca y Canta con Alan** (Spanish).
+- What it sells: 1-on-1 online lessons that teach absolute beginners to **play guitar AND sing at the same time** — the coordination skill most people find hard. Promise: from zero to confidently playing and singing 3 well-known songs in 6 weeks.
+- Audience: adult hobbyists and beginners worldwide. Instructor is bilingual (English + Spanish), so the page must be FULLY bilingual.
+- Goal of the page: get visitors to book a **free trial lesson** (primary CTA) via Calendly.
+
+## Design direction — psychedelic / 60s–70s hippie (READ CAREFULLY)
+Vintage flower-power / psychedelic-poster art: warm, joyful, hand-made, trippy. This is a DELIBERATE OPPOSITE of a clean minimalist tech aesthetic (muted cream + teal, IBM Plex fonts, sharp 0px corners, subtle glassmorphism, grid backgrounds). Do NOT produce anything corporate, gridded, or restrained.
+
+Fonts (Google Fonts):
+- Hero / display headings: **"Shrikhand"** (bold retro poster).
+- Brand name + short accent lines: **"Pacifico"** (groovy 70s script).
+- Optional huge statement words: **"Monoton"**.
+- Body / UI / buttons: **"Fredoka"** (rounded, friendly, highly legible) — all paragraphs and controls use this so the page stays readable.
+
+Color — warm psychedelic palette (define as CSS variables):
+- Base: warm cream `#FDF3E3` with a soft animated sunburst/mesh gradient.
+- Accents: tangerine `#FF6B35`, hot magenta `#FF2E9F`, electric purple `#7B2FF7`, lime `#C4F000`, sunburst yellow `#FFD23F`, turquoise `#00C2A8`.
+- Saturated, high-contrast, rainbow. Body text dark plum `#2A0E45` on light areas for legibility.
+
+Visual motifs & motion:
+- Slow-shifting multi-color gradient mesh / radial sunburst behind the hero.
+- Organic blob shapes, wavy SVG section dividers, retro daisy/flower + peace accents (tasteful, inline SVG — not cheesy clip-art).
+- Large border-radius everywhere, thick playful borders, colored drop shadows, wavy link underlines, gently floating/rotating decorative shapes.
+- CRITICAL: wrap ALL non-essential animation in `@media (prefers-reduced-motion: reduce)` and disable it there.
+
+## Page structure (ALL copy in BOTH English and Spanish)
+1. Sticky header: brand (Pacifico) + nav (Home / The Method / Pricing / About / Book) + a working **EN ⇄ ES language toggle**.
+2. Hero: brand, big headline ("Learn to play guitar AND sing your favourite songs — in 6 weeks" / Spanish equivalent), one-line subhead, primary CTA **"Book a free trial"** → Calendly, secondary CTA **"Watch me play"** → scrolls to demo. Decorative sunburst/blobs behind.
+3. Demo video: responsive 16:9 embed placeholder using `{{DEMO_VIDEO_ID}}` (assume YouTube; lazy-load the iframe; leave a commented self-hosted `<video>` fallback).
+4. "The problem we solve": warm copy about hands and voice fighting each other, and how the method fixes it (separate, then layer). 3–4 playful feature cards.
+5. Pricing: 3 cards — **Absolute Beginner (1-on-1)**, **Intermediate Package (bundle)**, highlighted flagship **Singer-Songwriter Fast-Track (6-week program)**. Use `{{PRICE_BEGINNER}}`, `{{PRICE_BUNDLE}}`, `{{PRICE_FASTTRACK}}` with a "from" prefix. Make the Fast-Track card visually dominant ("Most popular").
+6. How it works: a fun Week 1 → Week 6 timeline teaser, ending in "record your 3 songs".
+7. Social proof: 2–3 testimonial placeholders + a line about getting a shareable recording of your songs at the end.
+8. About Alan: short music-first bio in `{{ABOUT_TEXT}}` (bilingual instructor, plays guitar and sings, patient with total beginners). Warm, 2–3 sentences.
+9. Final CTA band: "Your first lesson is free" → Calendly, big and colorful.
+10. Footer: brand, social link placeholders, copyright, tiny language toggle.
+
+## Functional requirements
+- **Language toggle**: pure vanilla JS. Store strings in a JS object `{ en: {...}, es: {...} }` keyed by `data-i18n` attributes; swap text on toggle without reload; update `<html lang>`; remember choice in `localStorage`; default to browser language if Spanish, else English.
+- **Calendly**: include the official inline-widget embed using `{{CALENDLY_URL}}`, and make every CTA button also link to `{{CALENDLY_URL}}` as a fallback.
+- **Responsive**: mobile-first, great from 360px → 1440px; nav collapses to an accessible hamburger on mobile.
+- **Accessible**: semantic landmarks, correct heading order, alt text, focus-visible styles, sufficient text contrast, full `prefers-reduced-motion` support, keyboard-operable toggle and menu.
+- **SEO/meta**: title, description, Open Graph + Twitter tags, `theme-color`, favicon link placeholder, canonical `{{SITE_URL}}`.
+- **Performance**: no frameworks or heavy libraries; inline SVG for shapes/dividers; lazy-load the video; keep everything in the single HTML file.
+- List every `{{PLACEHOLDER}}` token in an HTML comment at the top of the file.
+
+Write friendly, playful, inviting marketing copy (not corporate) in both languages. Commit fully to the psychedelic theme. Return only the complete `index.html`.
