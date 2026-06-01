@@ -48,6 +48,78 @@ const renderText = (text: string, lang: "en" | "es") => {
   return mapped;
 };
 
+const ADSENSE_CLIENT = import.meta.env.VITE_ADSENSE_CLIENT;
+const ADSENSE_SLOT = import.meta.env.VITE_ADSENSE_SLOT;
+
+const AdSenseBanner = () => {
+  useEffect(() => {
+    if (!ADSENSE_CLIENT || !ADSENSE_SLOT) return;
+
+    const scriptId = "adsense-script";
+    let script = document.getElementById(
+      scriptId,
+    ) as HTMLScriptElement | null;
+
+    if (!script) {
+      script = document.createElement("script");
+      script.id = scriptId;
+      script.async = true;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`;
+      script.crossOrigin = "anonymous";
+      document.head.appendChild(script);
+    }
+
+    const pushAd = () => {
+      try {
+        (
+          (
+            window as Window & {
+              adsbygoogle?: unknown[];
+            }
+          ).adsbygoogle ||= []
+        ).push({});
+      } catch {
+        // Ignore duplicate ad push errors during hot reloads.
+      }
+    };
+
+    if (script.getAttribute("data-loaded") === "true") {
+      pushAd();
+      return;
+    }
+
+    const onLoad = () => {
+      script?.setAttribute("data-loaded", "true");
+      pushAd();
+    };
+
+    script.addEventListener("load", onLoad, { once: true });
+
+    return () => {
+      script?.removeEventListener("load", onLoad);
+    };
+  }, []);
+
+  if (!ADSENSE_CLIENT || !ADSENSE_SLOT) {
+    return null;
+  }
+
+  return (
+    <section className="bg-[#FDF3E3] py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto border-4 border-[#2A0E45] rounded-2xl p-4 bg-white/80 shadow-[6px_6px_0px_#00C2A8]">
+        <ins
+          className="adsbygoogle"
+          style={{ display: "block" }}
+          data-ad-client={ADSENSE_CLIENT}
+          data-ad-slot={ADSENSE_SLOT}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        ></ins>
+      </div>
+    </section>
+  );
+};
+
 const Button = ({
   children,
   href,
@@ -608,6 +680,8 @@ export default function App() {
           </Button>
         </div>
       </section>
+
+      <AdSenseBanner />
 
       {/* 10. Footer */}
       <footer className="bg-[#2A0E45] text-[#FDF3E3] py-16 px-4 sm:px-6 lg:px-8">
