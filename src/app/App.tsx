@@ -694,7 +694,7 @@ export default function App() {
           </div>
 
           <div className="font-medium opacity-70">
-            &copy; {new Date().getFullYear()} Alan Maizon. All
+            &copy; {new Date().getFullYear()} Play &amp; Sing with Alan. All
             rights reserved.
           </div>
 
