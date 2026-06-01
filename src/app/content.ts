@@ -14,7 +14,7 @@ export const content = {
       watchMe: "Watch me play"
     },
     problem: {
-      title: "Hands and Voice Fighting",
+      title: "Hands and Voice Coordination",
       desc: "Most people give up because trying to strum and sing at the same time feels impossible. We break it down so your brain can actually process it.",
       card1: { title: "Separate", text: "First, we master the hands. Then, we master the voice." },
       card2: { title: "Layer", text: "We slowly bring them together using our proven rhythmic grid." },
@@ -71,7 +71,7 @@ export const content = {
       watchMe: "Mírame tocar"
     },
     problem: {
-      title: "Tus Manos y Voz se Pelean",
+      title: "Coordinar Voz y Manos",
       desc: "La mayoría se rinde porque intentar rasguear y cantar al mismo tiempo parece imposible. Lo desglosamos para que tu cerebro pueda procesarlo.",
       card1: { title: "Separar", text: "Primero, dominamos las manos. Luego, dominamos la voz." },
       card2: { title: "Conectar", text: "Lentamente los unimos usando nuestra cuadrícula rítmica." },
