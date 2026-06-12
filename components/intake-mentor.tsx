@@ -83,10 +83,15 @@ function IntakeMentorInner() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   // Object URLs from the current pair, revoked when a new pair loads / on unmount.
   const objectUrlsRef = useRef<string[]>([])
+  // Transport for the current attempt. WebRTC is tried first (lower latency);
+  // if its media channels are blocked by the network we fall back to WebSocket.
+  const transportRef = useRef<"webrtc" | "websocket">("webrtc")
+  // Set by the render below once the session starter exists (avoids use-before-declaration).
+  const retryWithWebsocketRef = useRef<() => void>(() => {})
 
   const conversation = useConversation({
     onConnect: (props) => {
-      console.log("[v0] conversation connected:", JSON.stringify(props))
+      console.log("[v0] conversation connected via", transportRef.current, ":", JSON.stringify(props))
     },
     onError: (message, context) => {
       console.log("[v0] conversation onError:", message, context ? JSON.stringify(context) : "")
@@ -98,7 +103,15 @@ function IntakeMentorInner() {
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
       // "error" = network drop / server-side failure (not user hangup, not agent ending the call).
-      if (details?.reason === "error") setDropped(true)
+      if (details?.reason === "error") {
+        if (transportRef.current === "webrtc") {
+          // WebRTC media is blocked on this network — retry over WebSocket.
+          console.log("[v0] webrtc transport failed, falling back to websocket")
+          retryWithWebsocketRef.current()
+        } else {
+          setDropped(true)
+        }
+      }
     },
   })
   const { status, isSpeaking, isListening, startSession, endSession } = conversation
@@ -203,6 +216,28 @@ function IntakeMentorInner() {
     [clipPanel.urls, clipPanel.sounding, playToCompletion],
   )
 
+  /** Starts a session over the given transport. Mic permission must already be granted. */
+  const beginSession = useCallback(
+    (transport: "webrtc" | "websocket") => {
+      transportRef.current = transport
+      try {
+        startSession({
+          agentId: AGENT_ID as string,
+          connectionType: transport,
+          clientTools: {
+            play_assessment_pair: playAssessmentPair,
+          },
+        })
+      } catch {
+        setErrored(true)
+      }
+    },
+    [playAssessmentPair, startSession],
+  )
+
+  // Keep the disconnect handler's fallback pointing at the latest starter.
+  retryWithWebsocketRef.current = () => beginSession("websocket")
+
   const handleStart = useCallback(async () => {
     setMicDenied(false)
     setErrored(false)
@@ -221,18 +256,8 @@ function IntakeMentorInner() {
       return
     }
 
-    try {
-      startSession({
-        agentId: AGENT_ID as string,
-        connectionType: "webrtc",
-        clientTools: {
-          play_assessment_pair: playAssessmentPair,
-        },
-      })
-    } catch {
-      setErrored(true)
-    }
-  }, [playAssessmentPair, startSession])
+    beginSession("webrtc")
+  }, [beginSession])
 
   const handleEnd = useCallback(() => {
     endSession()
