@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/elevenlabs/auth/route": "app/api/elevenlabs/auth/route.js",
+  "/api/students/[id]/route": "app/api/students/[id]/route.js",
+  "/api/students/route": "app/api/students/route.js",
+  "/api/tools/assessment-clip/route": "app/api/tools/assessment-clip/route.js",
+  "/api/tools/record-answer/route": "app/api/tools/record-answer/route.js",
+  "/api/tools/save-intake/route": "app/api/tools/save-intake/route.js",
+  "/clips-check/page": "app/clips-check/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js",
+  "/plan/[studentId]/page": "app/plan/[studentId]/page.js"
+}

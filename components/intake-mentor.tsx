@@ -231,19 +231,38 @@ function IntakeMentorInner() {
     [clipPanel.urls, clipPanel.sounding, playToCompletion],
   )
 
-  /** Starts a session over the given transport. Mic permission must already be granted. */
+  /**
+   * Starts a session over the given transport. Mic permission must already be
+   * granted. Asks our server for short-lived credentials first (conversation
+   * token for WebRTC, signed URL for WebSocket) so this works for agents with
+   * authentication enabled; if the server reports the agent is public we fall
+   * back to connecting with the bare agent ID.
+   */
   const beginSession = useCallback(
-    (transport: "webrtc" | "websocket") => {
+    async (transport: "webrtc" | "websocket") => {
       transportRef.current = transport
+      const clientTools = { play_assessment_pair: playAssessmentPair }
+
       try {
-        startSession({
-          agentId: AGENT_ID as string,
-          connectionType: transport,
-          clientTools: {
-            play_assessment_pair: playAssessmentPair,
-          },
-        })
-      } catch {
+        const res = await fetch(`/api/elevenlabs/auth?transport=${transport}`, { cache: "no-store" })
+        if (!res.ok) throw new Error(`auth route ${res.status}`)
+        const auth = (await res.json()) as {
+          conversationToken?: string
+          signedUrl?: string
+          public?: boolean
+        }
+
+        if (auth.conversationToken) {
+          startSession({ conversationToken: auth.conversationToken, connectionType: "webrtc", clientTools })
+        } else if (auth.signedUrl) {
+          startSession({ signedUrl: auth.signedUrl, connectionType: "websocket", clientTools })
+        } else if (auth.public && AGENT_ID) {
+          startSession({ agentId: AGENT_ID, connectionType: transport, clientTools })
+        } else {
+          throw new Error("no usable credentials")
+        }
+      } catch (err) {
+        console.log("[v0] beginSession failed:", err)
         setErrored(true)
       }
     },
@@ -265,13 +284,16 @@ function IntakeMentorInner() {
     }
 
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      // Permission is all we needed — the SDK opens its own stream. Release
+      // this one so the browser's mic indicator doesn't stay on forever.
+      for (const track of stream.getTracks()) track.stop()
     } catch {
       setMicDenied(true)
       return
     }
 
-    beginSession("webrtc")
+    void beginSession("webrtc")
   }, [beginSession])
 
   const handleEnd = useCallback(() => {
