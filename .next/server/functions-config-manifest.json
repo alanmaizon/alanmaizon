@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/elevenlabs/auth": {},
+    "/api/students": {},
+    "/api/students/[id]": {},
+    "/api/tools/assessment-clip": {},
+    "/api/tools/record-answer": {},
+    "/api/tools/save-intake": {}
+  }
+}
