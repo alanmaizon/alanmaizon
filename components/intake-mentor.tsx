@@ -41,6 +41,8 @@ function copy(lang: "en" | "es") {
     dropped: "The connection was lost — this is usually a network hiccup. Start again to pick up where you left off.",
     unavailable: "The voice mentor is warming up. Check back soon!",
     micBlocked: "Mic blocked",
+    planReady: "Your personalized plan is ready!",
+    planCta: "View your 6-week plan",
   }
   const es = {
     start: "Comienza tu evaluación",
@@ -56,6 +58,8 @@ function copy(lang: "en" | "es") {
     dropped: "Se perdió la conexión — suele ser un problema de red. Comienza de nuevo para continuar.",
     unavailable: "El mentor de voz se está preparando. ¡Vuelve pronto!",
     micBlocked: "Micrófono bloqueado",
+    planReady: "¡Tu plan personalizado está listo!",
+    planCta: "Ver tu plan de 6 semanas",
   }
   return lang === "en" ? en : es
 }
@@ -77,6 +81,9 @@ function IntakeMentorInner() {
   const [errored, setErrored] = useState(false)
   const [dropped, setDropped] = useState(false)
   const [clipPanel, setClipPanel] = useState<ClipPanelState>(CLOSED_PANEL)
+  // Set by the show_plan client tool; survives the end of the session so the
+  // student can still reach their plan after hanging up.
+  const [planUrl, setPlanUrl] = useState<string | null>(null)
 
   // A single Audio element is created during the user gesture (start click) so
   // iOS Safari permits playback for both clips later during the session.
@@ -92,6 +99,9 @@ function IntakeMentorInner() {
   // the signature of broken WebRTC media rather than a real end-of-conversation.
   const connectedAtRef = useRef(0)
   const agentActivityRef = useRef(false)
+  // Stable per-session id, passed to the agent as the {{student_id}} dynamic
+  // variable so every webhook tool call uses the same id.
+  const studentIdRef = useRef("")
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -129,7 +139,7 @@ function IntakeMentorInner() {
       }
     },
   })
-  const { status, isSpeaking, isListening, startSession, endSession } = conversation
+  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage } = conversation
 
   const isActive = status === "connected" || status === "connecting"
 
@@ -184,10 +194,11 @@ function IntakeMentorInner() {
 
   /**
    * Client tool the agent calls. Fetches an A/B pair, preloads both files,
-   * plays both clips to completion (A, 800ms pause, B), and returns guidance
-   * text to the agent. Does NOT resolve until clip B first finishes so the
-   * agent won't talk over audio. Afterwards the panel stays open with replay
-   * buttons that reuse the preloaded URLs (no extra API calls).
+   * starts playback (A, 800ms pause, B) and returns IMMEDIATELY so the
+   * agent's tool-call timeout can't expire while long clips play. When clip B
+   * finishes we send a user message that prompts the agent to ask the
+   * question. Afterwards the panel stays open with replay buttons that reuse
+   * the preloaded URLs (no extra API calls).
    */
   const playAssessmentPair = useCallback(
     async ({ concept }: { concept: "rhythm" | "tonal" | "coord" }) => {
@@ -203,21 +214,45 @@ function IntakeMentorInner() {
         const urls = { A: urlA, B: urlB }
 
         setClipPanel({ open: true, phase: "playing", sounding: null, progress: 0, urls })
-        await playToCompletion(urls.A, "A")
-        await new Promise((r) => setTimeout(r, 800))
-        await playToCompletion(urls.B, "B")
 
-        setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
+        // Play in the background; nudge the agent when playback ends.
+        void (async () => {
+          try {
+            await playToCompletion(urls.A, "A")
+            await new Promise((r) => setTimeout(r, 800))
+            await playToCompletion(urls.B, "B")
+            setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
+            sendUserMessage(
+              "[system] Both clips just finished playing. Now ask me the comparison question for this exercise.",
+            )
+          } catch {
+            setClipPanel(CLOSED_PANEL)
+            sendUserMessage(
+              "[system] Clip playback failed on my device. Briefly apologize and skip this listening exercise.",
+            )
+          }
+        })()
 
-        return `Clips played. The correct answer is clip ${data.correctAnswer}. Ask the student which clip answers: ${data.promptToStudent}. Do not reveal the correct answer.`
+        return `Both clips are now playing out loud on the student's screen — this takes up to a minute. Stay completely silent and do NOT speak until you receive a [system] message saying the clips finished. Then ask the student: "${data.promptToStudent}". The correct answer is clip ${data.correctAnswer} — never reveal it.`
       } catch {
         setClipPanel(CLOSED_PANEL)
         revokeObjectUrls()
         return "Clip playback failed — apologize and skip this assessment"
       }
     },
-    [playToCompletion, revokeObjectUrls],
+    [playToCompletion, revokeObjectUrls, sendUserMessage],
   )
+
+  /**
+   * Client tool the agent calls after save-intake succeeds. Reveals a button
+   * to the student's personalized plan page. Accepts either the planUrl
+   * returned by save-intake or a studentId; falls back to this session's id.
+   */
+  const showPlan = useCallback(async ({ planUrl: url, studentId }: { planUrl?: string; studentId?: string }) => {
+    const resolved = url || `/plan/${encodeURIComponent(studentId || studentIdRef.current)}`
+    setPlanUrl(resolved)
+    return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
+  }, [])
 
   /** Replays one clip from the already-preloaded pair. Never calls the API. */
   const handleReplay = useCallback(
@@ -241,7 +276,8 @@ function IntakeMentorInner() {
   const beginSession = useCallback(
     async (transport: "webrtc" | "websocket") => {
       transportRef.current = transport
-      const clientTools = { play_assessment_pair: playAssessmentPair }
+      const clientTools = { play_assessment_pair: playAssessmentPair, show_plan: showPlan }
+      const dynamicVariables = { student_id: studentIdRef.current, language: lang }
 
       try {
         const res = await fetch(`/api/elevenlabs/auth?transport=${transport}`, { cache: "no-store" })
@@ -253,11 +289,16 @@ function IntakeMentorInner() {
         }
 
         if (auth.conversationToken) {
-          startSession({ conversationToken: auth.conversationToken, connectionType: "webrtc", clientTools })
+          startSession({
+            conversationToken: auth.conversationToken,
+            connectionType: "webrtc",
+            clientTools,
+            dynamicVariables,
+          })
         } else if (auth.signedUrl) {
-          startSession({ signedUrl: auth.signedUrl, connectionType: "websocket", clientTools })
+          startSession({ signedUrl: auth.signedUrl, connectionType: "websocket", clientTools, dynamicVariables })
         } else if (auth.public && AGENT_ID) {
-          startSession({ agentId: AGENT_ID, connectionType: transport, clientTools })
+          startSession({ agentId: AGENT_ID, connectionType: transport, clientTools, dynamicVariables })
         } else {
           throw new Error("no usable credentials")
         }
@@ -266,7 +307,7 @@ function IntakeMentorInner() {
         setErrored(true)
       }
     },
-    [playAssessmentPair, startSession],
+    [playAssessmentPair, showPlan, startSession, lang],
   )
 
   // Keep the disconnect handler's fallback pointing at the latest starter.
@@ -276,6 +317,8 @@ function IntakeMentorInner() {
     setMicDenied(false)
     setErrored(false)
     setDropped(false)
+    setPlanUrl(null)
+    studentIdRef.current = crypto.randomUUID()
 
     // Create/reuse the audio element inside the user gesture for iOS Safari.
     if (!audioRef.current) {
@@ -340,7 +383,15 @@ function IntakeMentorInner() {
   if (!isActive) {
     return (
       <div className="flex flex-col items-center gap-5">
-        <RetroButton onClick={handleStart} variant="primary" className="!py-5 !px-10 !text-2xl gap-3">
+        {planUrl && (
+          <div className="flex flex-col items-center gap-3">
+            <p className="font-bold text-xl text-foreground">{c.planReady}</p>
+            <RetroButton href={planUrl} variant="primary" className="!py-4 !px-10 !text-xl gap-2">
+              {c.planCta}
+            </RetroButton>
+          </div>
+        )}
+        <RetroButton onClick={handleStart} variant={planUrl ? "accent" : "primary"} className="!py-5 !px-10 !text-2xl gap-3">
           <Mic className="w-7 h-7" aria-hidden="true" />
           {c.start}
         </RetroButton>
@@ -451,6 +502,15 @@ function IntakeMentorInner() {
               {clipText.nowPlaying}: {clipPanel.sounding === "A" ? clipText.clipA : clipText.clipB}
             </p>
           )}
+        </div>
+      )}
+
+      {planUrl && (
+        <div className="flex flex-col items-center gap-3 w-full max-w-md px-5 py-4 rounded-2xl border-4 border-foreground bg-accent-yellow shadow-[4px_4px_0px_#2A0E45]">
+          <p className="font-bold text-lg text-foreground text-center">{c.planReady}</p>
+          <RetroButton href={planUrl} variant="primary" className="!py-3 !px-8 !text-lg gap-2">
+            {c.planCta}
+          </RetroButton>
         </div>
       )}
 
