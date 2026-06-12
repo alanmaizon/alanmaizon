@@ -8,8 +8,7 @@ import { RetroButton } from "./retro"
 const BOOKING_URL = process.env.NEXT_PUBLIC_BOOKING_URL || "https://calendly.com/maizonalan/30min"
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
+declare module "react" {
   namespace JSX {
     interface IntrinsicElements {
       "elevenlabs-convai": React.DetailedHTMLProps<
