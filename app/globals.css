@@ -13,6 +13,13 @@
   --color-accent-lime: #c4f000;
   --color-accent-teal: #00c2a8;
   --color-accent-purple: #7b2ff7;
+
+  --color-card: #ffffff;
+  --color-card-foreground: #2a0e45;
+  --color-muted: #f3e8d8;
+  --color-muted-foreground: #5c4475;
+  --color-secondary: #ffd23f;
+  --color-secondary-foreground: #2a0e45;
 }
 
 @layer utilities {
