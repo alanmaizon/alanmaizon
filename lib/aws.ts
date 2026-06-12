@@ -20,6 +20,7 @@ export function getDocClient(): DynamoDBDocumentClient {
       ? {
           credentials: awsCredentialsProvider({
             roleArn: AWS_ROLE_ARN,
+            clientConfig: { region: AWS_REGION },
           }),
         }
       : {}),

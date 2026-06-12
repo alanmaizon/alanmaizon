@@ -130,8 +130,6 @@ export async function POST(request: Request) {
           earScore: placement.earScore,
           earFlag: placement.earFlag,
           createdAt,
-          GSI1PK: "INTAKE",
-          GSI1SK: createdAt,
         },
       }),
     )

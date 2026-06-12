@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { QueryCommand } from "@aws-sdk/lib-dynamodb"
+import { ScanCommand } from "@aws-sdk/lib-dynamodb"
 import { getDocClient, TABLE_NAME } from "@/lib/aws"
 
 export const runtime = "nodejs"
@@ -14,7 +14,8 @@ function isAuthorized(request: Request): boolean {
 
 /**
  * GET /api/students?secret=...
- * GSI1 query (GSI1PK = "INTAKE"), newest first. Dashboard list.
+ * Scans for PROFILE items, newest first. Dashboard list.
+ * (The provisioned table has no GSI; a filtered scan is fine at studio scale.)
  */
 export async function GET(request: Request) {
   if (!isAuthorized(request)) {
@@ -24,16 +25,18 @@ export async function GET(request: Request) {
   try {
     const doc = getDocClient()
     const result = await doc.send(
-      new QueryCommand({
+      new ScanCommand({
         TableName: TABLE_NAME,
-        IndexName: "GSI1",
-        KeyConditionExpression: "GSI1PK = :pk",
-        ExpressionAttributeValues: { ":pk": "INTAKE" },
-        ScanIndexForward: false, // newest first
+        FilterExpression: "SK = :sk",
+        ExpressionAttributeValues: { ":sk": "PROFILE" },
       }),
     )
 
-    const students = (result.Items ?? []).map((item) => ({
+    const items = (result.Items ?? []).sort((a, b) =>
+      String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")),
+    )
+
+    const students = items.map((item) => ({
       studentId: item.studentId,
       language: item.language,
       stage: item.stage,
