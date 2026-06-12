@@ -34,6 +34,14 @@ export const messages = {
       desc: "Talk to my AI mentor for a quick, friendly placement chat. It listens to where you are with your hands, your voice, and your coordination — then builds your personalized entry into the 6-week program.",
       micNote: "You'll need a microphone. Headphones recommended.",
       fallback: "Prefer to talk to a human first?",
+      clips: {
+        clipA: "Clip A",
+        clipB: "Clip B",
+        listen: "Listen to both clips, then tell the mentor your answer.",
+        nowPlaying: "Now playing",
+        replay: "Replay",
+        done: "Both clips played — replay anytime, then answer out loud.",
+      },
     },
     pricing: {
       title: "Pricing",
@@ -134,6 +142,14 @@ export const messages = {
       desc: "Habla con mi mentor de IA para una charla rápida y amigable de ubicación. Escucha dónde estás con tus manos, tu voz y tu coordinación — y construye tu entrada personalizada al programa de 6 semanas.",
       micNote: "Necesitarás un micrófono. Se recomiendan auriculares.",
       fallback: "¿Prefieres hablar primero con un humano?",
+      clips: {
+        clipA: "Clip A",
+        clipB: "Clip B",
+        listen: "Escucha ambos clips y luego dile tu respuesta al mentor.",
+        nowPlaying: "Reproduciendo",
+        replay: "Repetir",
+        done: "Ambos clips sonaron — repítelos cuando quieras y responde en voz alta.",
+      },
     },
     pricing: {
       title: "Precios",

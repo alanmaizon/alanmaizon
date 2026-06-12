@@ -8,29 +8,31 @@ interface ClipPair {
 }
 
 /**
- * Static map of ear-assessment clips.
- * Audio files live in /public/clips/ — placeholder filenames,
- * Alan will supply the real audio.
+ * Static map of ear-assessment clips. Real audio files live in /public/clips/.
+ * The map stores which file is conceptually "correct"; the API route decides
+ * the A/B presentation order per call.
  */
 const CLIP_MAP: Record<EarConcept, ClipPair> = {
   rhythm: {
-    promptToStudent:
-      "You'll hear two short strumming clips. One keeps a steady beat, one rushes ahead. Which one is steady — A or B?",
+    promptToStudent: "Which clip kept perfect time — A or B?",
     correctClip: "/clips/steady.mp3",
     otherClip: "/clips/rushing.mp3",
   },
   tonal: {
-    promptToStudent:
-      "You'll hear two short melodies. One sounds bright (major), one sounds darker (minor). Which one is the bright, major one — A or B?",
+    promptToStudent: "Which clip felt brighter and happier — A or B?",
     correctClip: "/clips/major.mp3",
     otherClip: "/clips/minor.mp3",
   },
   coord: {
-    promptToStudent:
-      "You'll hear two short clips. In one, the strumming and the voice lock together. In the other it's strumming alone. Which one has voice and guitar together — A or B?",
+    promptToStudent: "In which clip is someone doing two things at once — A or B?",
     correctClip: "/clips/strum_vocal.mp3",
     otherClip: "/clips/strum_alone.mp3",
   },
+}
+
+/** Raw (un-randomized) file mapping for a concept — used by the QA page. */
+export function getClipFiles(concept: EarConcept): { correctClip: string; otherClip: string; promptToStudent: string } {
+  return CLIP_MAP[concept]
 }
 
 export interface AssessmentClip {
