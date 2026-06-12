@@ -88,10 +88,20 @@ function IntakeMentorInner() {
   const transportRef = useRef<"webrtc" | "websocket">("webrtc")
   // Set by the render below once the session starter exists (avoids use-before-declaration).
   const retryWithWebsocketRef = useRef<() => void>(() => {})
+  // Used to detect "the agent hung up immediately without ever talking" —
+  // the signature of broken WebRTC media rather than a real end-of-conversation.
+  const connectedAtRef = useRef(0)
+  const agentActivityRef = useRef(false)
 
   const conversation = useConversation({
     onConnect: (props) => {
+      connectedAtRef.current = Date.now()
+      agentActivityRef.current = false
       console.log("[v0] conversation connected via", transportRef.current, ":", JSON.stringify(props))
+    },
+    onMessage: () => {
+      // Any message (agent transcript, etc.) proves media is actually flowing.
+      agentActivityRef.current = true
     },
     onError: (message, context) => {
       console.log("[v0] conversation onError:", message, context ? JSON.stringify(context) : "")
@@ -102,11 +112,16 @@ function IntakeMentorInner() {
       // Stop any clip audio and clear the panel regardless of why we disconnected.
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
-      // "error" = network drop / server-side failure (not user hangup, not agent ending the call).
-      if (details?.reason === "error") {
+
+      const elapsed = Date.now() - connectedAtRef.current
+      const isErrorDrop = details?.reason === "error"
+      // The agent "hanging up" within seconds of connecting, before any
+      // message ever flowed, means WebRTC media never got established.
+      const isSilentEarlyHangup = details?.reason === "agent" && !agentActivityRef.current && elapsed < 10000
+
+      if (isErrorDrop || isSilentEarlyHangup) {
         if (transportRef.current === "webrtc") {
-          // WebRTC media is blocked on this network — retry over WebSocket.
-          console.log("[v0] webrtc transport failed, falling back to websocket")
+          console.log("[v0] webrtc media failed (", details?.reason, elapsed, "ms ) — falling back to websocket")
           retryWithWebsocketRef.current()
         } else {
           setDropped(true)
