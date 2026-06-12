@@ -38,6 +38,7 @@ function copy(lang: "en" | "es") {
     micDenied:
       "We couldn't access your microphone. Allow mic permission in your browser, then try again — or book a free trial below.",
     error: "Something interrupted the voice mentor. Try again, or book a free trial below.",
+    dropped: "The connection was lost — this is usually a network hiccup. Start again to pick up where you left off.",
     unavailable: "The voice mentor is warming up. Check back soon!",
     micBlocked: "Mic blocked",
   }
@@ -52,6 +53,7 @@ function copy(lang: "en" | "es") {
     micDenied:
       "No pudimos acceder a tu micrófono. Permite el acceso en tu navegador e inténtalo de nuevo, o reserva una clase gratis abajo.",
     error: "Algo interrumpió al mentor de voz. Inténtalo de nuevo o reserva una clase gratis abajo.",
+    dropped: "Se perdió la conexión — suele ser un problema de red. Comienza de nuevo para continuar.",
     unavailable: "El mentor de voz se está preparando. ¡Vuelve pronto!",
     micBlocked: "Micrófono bloqueado",
   }
@@ -73,11 +75,7 @@ function IntakeMentorInner() {
 
   const [micDenied, setMicDenied] = useState(false)
   const [errored, setErrored] = useState(false)
-
-  const conversation = useConversation({
-    onError: () => setErrored(true),
-  })
-  const { status, isSpeaking, isListening, startSession, endSession } = conversation
+  const [dropped, setDropped] = useState(false)
   const [clipPanel, setClipPanel] = useState<ClipPanelState>(CLOSED_PANEL)
 
   // A single Audio element is created during the user gesture (start click) so
@@ -85,6 +83,25 @@ function IntakeMentorInner() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   // Object URLs from the current pair, revoked when a new pair loads / on unmount.
   const objectUrlsRef = useRef<string[]>([])
+
+  const conversation = useConversation({
+    onConnect: (props) => {
+      console.log("[v0] conversation connected:", JSON.stringify(props))
+    },
+    onError: (message, context) => {
+      console.log("[v0] conversation onError:", message, context ? JSON.stringify(context) : "")
+      setErrored(true)
+    },
+    onDisconnect: (details) => {
+      console.log("[v0] conversation onDisconnect, reason:", details?.reason, JSON.stringify(details))
+      // Stop any clip audio and clear the panel regardless of why we disconnected.
+      if (audioRef.current) audioRef.current.pause()
+      setClipPanel(CLOSED_PANEL)
+      // "error" = network drop / server-side failure (not user hangup, not agent ending the call).
+      if (details?.reason === "error") setDropped(true)
+    },
+  })
+  const { status, isSpeaking, isListening, startSession, endSession } = conversation
 
   const isActive = status === "connected" || status === "connecting"
 
@@ -189,6 +206,7 @@ function IntakeMentorInner() {
   const handleStart = useCallback(async () => {
     setMicDenied(false)
     setErrored(false)
+    setDropped(false)
 
     // Create/reuse the audio element inside the user gesture for iOS Safari.
     if (!audioRef.current) {
@@ -245,10 +263,10 @@ function IntakeMentorInner() {
     )
   }
 
-  if (errored) {
+  if (errored || dropped) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="font-medium text-foreground/80 max-w-md text-pretty">{c.error}</p>
+        <p className="font-medium text-foreground/80 max-w-md text-pretty">{dropped ? c.dropped : c.error}</p>
         <RetroButton onClick={handleStart} variant="primary" className="!py-3 !px-8 !text-lg gap-2">
           <Mic className="w-5 h-5" aria-hidden="true" />
           {c.start}
