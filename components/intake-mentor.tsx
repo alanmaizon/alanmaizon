@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw } from "lucide-react"
 import { ConversationProvider, useConversation } from "@elevenlabs/react"
 import { getListeningClip } from "@/lib/clips"
@@ -86,14 +86,6 @@ function copy(lang: "en" | "es") {
   return lang === "en" ? en : es
 }
 
-/** Fetches a clip URL into an object URL so playback starts with no gap. */
-async function preloadClip(url: string): Promise<string> {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`preload failed: ${url}`)
-  const blob = await res.blob()
-  return URL.createObjectURL(blob)
-}
-
 function IntakeMentorInner() {
   const { t, lang } = useLanguage()
   const c = copy(lang)
@@ -108,10 +100,8 @@ function IntakeMentorInner() {
   const [planUrl, setPlanUrl] = useState<string | null>(null)
 
   // A single Audio element is created during the user gesture (start click) so
-  // iOS Safari permits playback for both clips later during the session.
+  // iOS Safari permits clip playback later during the session.
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  // Object URLs from the current pair, revoked when a new pair loads / on unmount.
-  const objectUrlsRef = useRef<string[]>([])
   // Transport for the current attempt. WebRTC is tried first (lower latency);
   // if its media channels are blocked by the network we fall back to WebSocket.
   const transportRef = useRef<"webrtc" | "websocket">("webrtc")
@@ -176,13 +166,6 @@ function IntakeMentorInner() {
   const { status, isSpeaking, isListening, startSession, endSession, getId } = conversation
 
   const isActive = status === "connected" || status === "connecting"
-
-  const revokeObjectUrls = useCallback(() => {
-    for (const u of objectUrlsRef.current) URL.revokeObjectURL(u)
-    objectUrlsRef.current = []
-  }, [])
-
-  useEffect(() => revokeObjectUrls, [revokeObjectUrls])
 
   /**
    * Plays a url through the shared Audio element, resolving when it finishes.
@@ -253,29 +236,15 @@ function IntakeMentorInner() {
       // Static clip data — no fetch, so the tool returns instantly.
       const data: ListeningResponse = getListeningClip(concept)
       openClipConceptRef.current = concept
-      setClipPanel({ open: true, concept, phase: "loading", sounding: false, progress: 0, clipUrl: null, prompt: data.prompt })
       const run = ++playbackRunRef.current
+      // Stream the clip directly (no full-file download first) so playback
+      // starts within a fraction of a second — otherwise the silent download
+      // gap makes the agent repeat its "here's the clip" line.
+      setClipPanel({ open: true, concept, phase: "playing", sounding: false, progress: 0, clipUrl: data.clipUrl, prompt: data.prompt })
 
-      // Preload + play in the background so the tool returns immediately.
       void (async () => {
         try {
-          const objUrl = await preloadClip(data.clipUrl)
-          if (playbackRunRef.current !== run) {
-            URL.revokeObjectURL(objUrl)
-            return
-          }
-          revokeObjectUrls()
-          objectUrlsRef.current = [objUrl]
-          setClipPanel({
-            open: true,
-            concept,
-            phase: "playing",
-            sounding: false,
-            progress: 0,
-            clipUrl: objUrl,
-            prompt: data.prompt,
-          })
-          await playClip(objUrl)
+          await playClip(data.clipUrl)
           if (playbackRunRef.current === run) {
             setClipPanel((p) => ({ ...p, phase: "ready", sounding: false, progress: 0 }))
           }
@@ -286,9 +255,9 @@ function IntakeMentorInner() {
         }
       })()
 
-      return `A short listening clip for the "${concept}" check is now playing on the student's screen, with a replay button they can use anytime. You can talk while it plays. Ask the student, in their own words: "${data.prompt}" FOR YOUR JUDGMENT ONLY — never say this part aloud: ${data.listenFor} After they describe what they hear, call record_answer("${concept}", correct) with your honest judgment, respond warmly without revealing whether they were right, then continue.`
+      return `A short listening clip for the "${concept}" check is playing on the student's screen right now, with a replay button. Say at most ONE brief lead-in and then stay quiet while it plays — do NOT repeat yourself or re-announce the clip. After it, ask the student, in their own words: "${data.prompt}" FOR YOUR JUDGMENT ONLY — never say this part aloud: ${data.listenFor} After they describe what they hear, call record_answer("${concept}", correct) with your honest judgment, respond warmly without revealing whether they were right, then continue.`
     },
-    [playClip, revokeObjectUrls],
+    [playClip],
   )
 
   /**
@@ -449,11 +418,10 @@ function IntakeMentorInner() {
       // Already disconnected — nothing to end.
     }
     setClipPanel(CLOSED_PANEL)
-    revokeObjectUrls()
     if (audioRef.current) {
       audioRef.current.pause()
     }
-  }, [endSession, revokeObjectUrls])
+  }, [endSession])
 
   if (!AGENT_ID) {
     return <p className="font-bold text-lg text-foreground/70">{c.unavailable}</p>
