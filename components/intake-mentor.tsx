@@ -178,7 +178,8 @@ function IntakeMentorInner() {
       }
     },
   })
-  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage, setMuted } = conversation
+  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage, setMuted, setVolume } =
+    conversation
 
   const isActive = status === "connected" || status === "connecting"
 
@@ -211,6 +212,19 @@ function IntakeMentorInner() {
       }
     },
     [sendUserMessage],
+  )
+  // Silences the mentor's TTS output locally (volume 0) while clips play, so
+  // the agent's autonomous conversation turn can't be heard talking over the
+  // clips. Restored to full volume when the exercise is released.
+  const safeSetVolume = useCallback(
+    (volume: number) => {
+      try {
+        setVolume({ volume })
+      } catch {
+        // No active conversation — nothing to adjust.
+      }
+    },
+    [setVolume],
   )
 
   const revokeObjectUrls = useCallback(() => {
@@ -312,6 +326,8 @@ function IntakeMentorInner() {
           releaseSectionRef.current = null
           setClipPanel((p) => (p.urls ? { ...p, phase: "done", sounding: null, progress: 0 } : CLOSED_PANEL))
           safeSetMuted(false)
+          // Restore the mentor's voice before prompting the question.
+          safeSetVolume(1)
           safeSendUserMessage(message)
         }
         releaseSectionRef.current = () =>
@@ -322,13 +338,19 @@ function IntakeMentorInner() {
         // Play in the background; hold the mentor until the minimum window.
         void (async () => {
           try {
-            // Wait for the mentor to stop talking before starting (cap ~12s so
-            // we never hang if the speaking signal never clears).
-            const deadline = Date.now() + 12000
+            // Wait for the mentor to stop its current sentence before starting
+            // (cap ~8s so we never hang if the speaking signal never clears).
+            const deadline = Date.now() + 8000
             while (isSpeakingRef.current && Date.now() < deadline) {
               await new Promise((r) => setTimeout(r, 150))
               if (sectionRunRef.current !== section) return
             }
+            // Silence the mentor's voice for the whole clip segment. The agent
+            // will autonomously try to keep the conversation going (e.g. ask
+            // "A or B?") right after the tool call — muting its output means
+            // that turn can't be heard talking over the clips. Restored on
+            // release, when we prompt it to ask the question for real.
+            safeSetVolume(0)
             // Small breath after the agent finishes before clip A.
             await new Promise((r) => setTimeout(r, 350))
             if (sectionRunRef.current !== section) return
@@ -371,7 +393,7 @@ function IntakeMentorInner() {
           }
         })()
 
-        return `The two clips will play on the student's screen right after you finish your current sentence — keep your intro short. Stay completely silent once they begin and do NOT speak again until you receive a [system] message telling you to ask the question. This listening window lasts at least a minute, and the student can replay either clip — do not rush or move on early. When prompted, ask the student: "${data.promptToStudent}". The correct answer is clip ${data.correctAnswer} — never reveal it.`
+        return `The two clips are about to play on the student's screen. Your audio is muted for the student while they play, so do NOT try to talk or ask anything yet — anything you say now will not be heard. Wait for a [system] message telling you the student is ready; only then ask: "${data.promptToStudent}". The listening window lasts at least a minute and the student can replay either clip. The correct answer is clip ${data.correctAnswer} — never reveal it.`
       } catch {
         setClipPanel(CLOSED_PANEL)
         revokeObjectUrls()
@@ -379,7 +401,7 @@ function IntakeMentorInner() {
       }
     },
     // isSpeakingRef is a ref; intentionally excluded from deps.
-    [playToCompletion, revokeObjectUrls, safeSendUserMessage, safeSetMuted],
+    [playToCompletion, revokeObjectUrls, safeSendUserMessage, safeSetMuted, safeSetVolume],
   )
 
   /**
@@ -442,8 +464,9 @@ function IntakeMentorInner() {
     cancelPlaybackRef.current?.()
     releaseSectionRef.current = null
     if (audioRef.current) audioRef.current.pause()
+    safeSetVolume(1)
     setClipPanel(CLOSED_PANEL)
-  }, [])
+  }, [safeSetVolume])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -523,6 +546,9 @@ function IntakeMentorInner() {
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
     releaseSectionRef.current = null
+    // Restore agent volume in case we end mid-exercise (so a later session
+    // doesn't inherit a muted mentor).
+    safeSetVolume(1)
     try {
       endSession()
     } catch {
@@ -533,7 +559,7 @@ function IntakeMentorInner() {
     if (audioRef.current) {
       audioRef.current.pause()
     }
-  }, [endSession, revokeObjectUrls])
+  }, [endSession, revokeObjectUrls, safeSetVolume])
 
   if (!AGENT_ID) {
     return <p className="font-bold text-lg text-foreground/70">{c.unavailable}</p>
