@@ -154,6 +154,30 @@ function IntakeMentorInner() {
 
   const isActive = status === "connected" || status === "connecting"
 
+  // The SDK's setMuted / sendUserMessage throw "No active conversation" if
+  // called when no session is live (e.g. before start, or after a disconnect
+  // races an in-flight clip sequence). These wrappers make that a no-op.
+  const safeSetMuted = useCallback(
+    (muted: boolean) => {
+      try {
+        setMuted(muted)
+      } catch {
+        // No active conversation — nothing to mute.
+      }
+    },
+    [setMuted],
+  )
+  const safeSendUserMessage = useCallback(
+    (text: string) => {
+      try {
+        sendUserMessage(text)
+      } catch {
+        // No active conversation — drop the nudge.
+      }
+    },
+    [sendUserMessage],
+  )
+
   const revokeObjectUrls = useCallback(() => {
     for (const u of objectUrlsRef.current) URL.revokeObjectURL(u)
     objectUrlsRef.current = []
@@ -237,7 +261,7 @@ function IntakeMentorInner() {
         // Lock the conversation while clips play: the mic is muted so neither
         // the clips bleeding through speakers nor an eager early answer can
         // trigger the agent mid-exercise. Unmuted again before the nudge.
-        setMuted(true)
+        safeSetMuted(true)
         const run = ++playbackRunRef.current
 
         // Play in the background; nudge the agent when playback ends.
@@ -250,15 +274,15 @@ function IntakeMentorInner() {
             await playToCompletion(urls.B, "B")
             if (playbackRunRef.current !== run) return
             setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
-            setMuted(false)
-            sendUserMessage(
+            safeSetMuted(false)
+            safeSendUserMessage(
               "[system] Both clips just finished playing. Now ask me the comparison question for this exercise.",
             )
           } catch {
             if (playbackRunRef.current !== run) return
             setClipPanel(CLOSED_PANEL)
-            setMuted(false)
-            sendUserMessage(
+            safeSetMuted(false)
+            safeSendUserMessage(
               "[system] Clip playback failed on my device. Briefly apologize and skip this listening exercise.",
             )
           }
@@ -271,7 +295,7 @@ function IntakeMentorInner() {
         return "Clip playback failed — apologize and skip this assessment"
       }
     },
-    [playToCompletion, revokeObjectUrls, sendUserMessage, setMuted],
+    [playToCompletion, revokeObjectUrls, safeSendUserMessage, safeSetMuted],
   )
 
   /**
@@ -294,16 +318,16 @@ function IntakeMentorInner() {
       const urls = clipPanel.urls
       if (!urls || clipPanel.sounding) return
       const run = ++playbackRunRef.current
-      setMuted(true)
+      safeSetMuted(true)
       playToCompletion(urls[slot], slot)
         .catch(() => {
           setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
         })
         .finally(() => {
-          if (playbackRunRef.current === run) setMuted(false)
+          if (playbackRunRef.current === run) safeSetMuted(false)
         })
     },
-    [clipPanel.urls, clipPanel.sounding, playToCompletion, setMuted],
+    [clipPanel.urls, clipPanel.sounding, playToCompletion, safeSetMuted],
   )
 
   /**
@@ -317,13 +341,13 @@ function IntakeMentorInner() {
     cancelPlaybackRef.current?.()
     if (audioRef.current) audioRef.current.pause()
     setClipPanel(CLOSED_PANEL)
-    setMuted(false)
+    safeSetMuted(false)
     if (wasMidExercise) {
-      sendUserMessage(
+      safeSendUserMessage(
         "[system] I stopped the clips early. Ask me the comparison question for this exercise now.",
       )
     }
-  }, [clipPanel.phase, sendUserMessage, setMuted])
+  }, [clipPanel.phase, safeSendUserMessage, safeSetMuted])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -378,7 +402,6 @@ function IntakeMentorInner() {
     setDropped(false)
     setPlanUrl(null)
     studentIdRef.current = crypto.randomUUID()
-    setMuted(false)
 
     // Create/reuse the audio element inside the user gesture for iOS Safari.
     if (!audioRef.current) {
@@ -397,12 +420,16 @@ function IntakeMentorInner() {
     }
 
     void beginSession("webrtc")
-  }, [beginSession, setMuted])
+  }, [beginSession])
 
   const handleEnd = useCallback(() => {
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
-    endSession()
+    try {
+      endSession()
+    } catch {
+      // Already disconnected — nothing to end.
+    }
     setClipPanel(CLOSED_PANEL)
     revokeObjectUrls()
     if (audioRef.current) {
