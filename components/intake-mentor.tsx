@@ -9,30 +9,35 @@ import { RetroButton } from "./retro"
 const BOOKING_URL = process.env.NEXT_PUBLIC_BOOKING_URL || "https://calendly.com/maizonalan/30min"
 const AGENT_ID = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID
 
-type ClipResponse = {
-  promptToStudent: string
-  clipAUrl: string
-  clipBUrl: string
-  correctAnswer: string
+type EarConcept = "rhythm" | "tonal" | "coord"
+
+type ListeningResponse = {
+  clipUrl: string
+  prompt: string
+  listenFor: string
 }
 
 type ClipPanelState = {
   open: boolean
-  // "waiting" = holding until the mentor finishes talking; "playing" = auto-
-  // playing the A/B pair; "review" = clips done, replays available, mentor
-  // held silent through the minimum listening window; "done" = released, the
-  // mentor has been asked to pose the question and the mic is open.
-  phase: "waiting" | "playing" | "review" | "done"
-  sounding: "A" | "B" | null
+  concept: EarConcept | null
+  // "loading" = fetching/preloading; "playing" = the clip is auto-playing;
+  // "ready" = playback finished, replay available while the student describes.
+  phase: "loading" | "playing" | "ready"
+  sounding: boolean
   progress: number
-  urls: { A: string; B: string } | null
+  clipUrl: string | null
+  prompt: string
 }
 
-const CLOSED_PANEL: ClipPanelState = { open: false, phase: "waiting", sounding: null, progress: 0, urls: null }
-
-// Minimum time the clip exercise holds the mentor silent so it can't rush into
-// the next task — gives the student room to listen and replay before answering.
-const CLIP_SECTION_MIN_MS = 60000
+const CLOSED_PANEL: ClipPanelState = {
+  open: false,
+  concept: null,
+  phase: "loading",
+  sounding: false,
+  progress: 0,
+  clipUrl: null,
+  prompt: "",
+}
 
 function copy(lang: "en" | "es") {
   const en = {
@@ -51,12 +56,10 @@ function copy(lang: "en" | "es") {
     micBlocked: "Mic blocked",
     planReady: "Your personalized plan is ready!",
     planCta: "View your 6-week plan",
-    micPaused: "Your mic is paused while the clips play.",
     closeHelper: "Close the clip player",
-    stopClips: "Stop",
-    clipsWaiting: "Get ready — the clips will play in a moment.",
-    clipsReview: "Take your time — replay either clip. The mentor will ask you shortly.",
-    imReady: "I'm ready",
+    clipLoading: "Loading the clip…",
+    listeningClip: "Listening clip",
+    listenAndDescribe: "Listen, then describe what you hear out loud.",
   }
   const es = {
     start: "Comienza tu evaluación",
@@ -74,12 +77,10 @@ function copy(lang: "en" | "es") {
     micBlocked: "Micrófono bloqueado",
     planReady: "¡Tu plan personalizado está listo!",
     planCta: "Ver tu plan de 6 semanas",
-    micPaused: "Tu micrófono está en pausa mientras suenan los clips.",
     closeHelper: "Cerrar el reproductor de clips",
-    stopClips: "Detener",
-    clipsWaiting: "Prepárate — los clips sonarán en un momento.",
-    clipsReview: "Tómate tu tiempo — repite los clips. El mentor te preguntará en breve.",
-    imReady: "Estoy listo",
+    clipLoading: "Cargando el clip…",
+    listeningClip: "Clip de escucha",
+    listenAndDescribe: "Escucha y luego describe en voz alta lo que oyes.",
   }
   return lang === "en" ? en : es
 }
@@ -122,21 +123,11 @@ function IntakeMentorInner() {
   // Stable per-session id, passed to the agent as the {{student_id}} dynamic
   // variable so every webhook tool call uses the same id.
   const studentIdRef = useRef("")
-  // Bumping the run id abandons any in-flight clip sequence (close button,
-  // disconnect, or a new pair starting). cancelPlaybackRef settles the
-  // currently-pending playToCompletion promise so the sequence can notice.
+  // Bumping the run id abandons any in-flight clip playback (dismiss,
+  // disconnect, or a new clip starting). cancelPlaybackRef settles the
+  // currently-pending playClip promise so the sequence can notice.
   const playbackRunRef = useRef(0)
   const cancelPlaybackRef = useRef<(() => void) | null>(null)
-  // Lifecycle of the whole clip exercise (auto-play + minimum listening
-  // window). Bumped to abandon the section (disconnect, end, dismiss, new
-  // pair). Kept separate from playbackRunRef so a replay can't abort it.
-  const sectionRunRef = useRef(0)
-  // Set by the active clip run; releases the minimum listening window early
-  // when the student taps "I'm ready".
-  const releaseSectionRef = useRef<(() => void) | null>(null)
-  // Set by "Stop" to skip the rest of the auto-play and jump to the review
-  // (replays available) without ending the minimum listening window.
-  const clipStoppedRef = useRef(false)
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -155,10 +146,8 @@ function IntakeMentorInner() {
     onDisconnect: (details) => {
       console.log("[v0] conversation onDisconnect, reason:", details?.reason, JSON.stringify(details))
       // Stop any clip audio and clear the panel regardless of why we disconnected.
-      sectionRunRef.current++
       playbackRunRef.current++
       cancelPlaybackRef.current?.()
-      releaseSectionRef.current = null
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
@@ -178,54 +167,9 @@ function IntakeMentorInner() {
       }
     },
   })
-  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage, setMuted, setVolume } =
-    conversation
+  const { status, isSpeaking, isListening, startSession, endSession } = conversation
 
   const isActive = status === "connected" || status === "connecting"
-
-  // Mirror of isSpeaking readable inside async closures (so clip playback can
-  // wait for the mentor to stop talking before starting, avoiding overlap).
-  const isSpeakingRef = useRef(false)
-  useEffect(() => {
-    isSpeakingRef.current = isSpeaking
-  }, [isSpeaking])
-
-  // The SDK's setMuted / sendUserMessage throw "No active conversation" if
-  // called when no session is live (e.g. before start, or after a disconnect
-  // races an in-flight clip sequence). These wrappers make that a no-op.
-  const safeSetMuted = useCallback(
-    (muted: boolean) => {
-      try {
-        setMuted(muted)
-      } catch {
-        // No active conversation — nothing to mute.
-      }
-    },
-    [setMuted],
-  )
-  const safeSendUserMessage = useCallback(
-    (text: string) => {
-      try {
-        sendUserMessage(text)
-      } catch {
-        // No active conversation — drop the nudge.
-      }
-    },
-    [sendUserMessage],
-  )
-  // Silences the mentor's TTS output locally (volume 0) while clips play, so
-  // the agent's autonomous conversation turn can't be heard talking over the
-  // clips. Restored to full volume when the exercise is released.
-  const safeSetVolume = useCallback(
-    (volume: number) => {
-      try {
-        setVolume({ volume })
-      } catch {
-        // No active conversation — nothing to adjust.
-      }
-    },
-    [setVolume],
-  )
 
   const revokeObjectUrls = useCallback(() => {
     for (const u of objectUrlsRef.current) URL.revokeObjectURL(u)
@@ -236,9 +180,9 @@ function IntakeMentorInner() {
 
   /**
    * Plays a url through the shared Audio element, resolving when it finishes.
-   * Updates the panel's sounding slot and per-clip progress while playing.
+   * Updates the panel's sounding flag and progress while playing.
    */
-  const playToCompletion = useCallback((url: string, slot: "A" | "B") => {
+  const playClip = useCallback((url: string) => {
     return new Promise<void>((resolve, reject) => {
       const audio = audioRef.current
       if (!audio) {
@@ -247,7 +191,7 @@ function IntakeMentorInner() {
       }
       const onTime = () => {
         const ratio = audio.duration > 0 ? audio.currentTime / audio.duration : 0
-        setClipPanel((p) => (p.sounding === slot ? { ...p, progress: ratio } : p))
+        setClipPanel((p) => (p.sounding ? { ...p, progress: ratio } : p))
       }
       const cleanup = () => {
         cancelPlaybackRef.current = null
@@ -257,24 +201,24 @@ function IntakeMentorInner() {
       }
       const onEnded = () => {
         cleanup()
-        setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
+        setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
         resolve()
       }
       const onError = () => {
         cleanup()
         reject(new Error("Audio playback error"))
       }
-      // Lets the close button settle this promise; callers detect the
+      // Lets dismiss/disconnect settle this promise; callers detect the
       // abandoned run via playbackRunRef and stop quietly.
       cancelPlaybackRef.current = () => {
         cleanup()
-        setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
+        setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
         resolve()
       }
       audio.addEventListener("ended", onEnded)
       audio.addEventListener("error", onError)
       audio.addEventListener("timeupdate", onTime)
-      setClipPanel((p) => ({ ...p, sounding: slot, progress: 0 }))
+      setClipPanel((p) => ({ ...p, sounding: true, progress: 0 }))
       audio.src = url
       audio.currentTime = 0
       audio.play().catch((err) => {
@@ -285,123 +229,62 @@ function IntakeMentorInner() {
   }, [])
 
   /**
-   * Client tool the agent calls. Fetches an A/B pair, preloads both files,
-   * starts playback (A, 800ms pause, B) and returns IMMEDIATELY so the
-   * agent's tool-call timeout can't expire while long clips play. When clip B
-   * finishes we send a user message that prompts the agent to ask the
-   * question. Afterwards the panel stays open with replay buttons that reuse
-   * the preloaded URLs (no extra API calls).
+   * Client tool the agent calls — once per concept (rhythm → tonal → coord).
+   * Plays a SINGLE clip on the student's screen and returns the question to
+   * ask plus what the clip demonstrates (for the agent's judgment only). The
+   * mentor is NOT muted: it talks and listens naturally while the clip plays,
+   * the student describes what they hear out loud, and the agent judges and
+   * records the answer. Returns immediately (after the fast metadata fetch) so
+   * the tool-call timeout can't expire during the audio download.
    */
-  const playAssessmentPair = useCallback(
-    async ({ concept }: { concept: "rhythm" | "tonal" | "coord" }) => {
+  const playListeningClip = useCallback(
+    async ({ concept }: { concept: EarConcept }) => {
+      setClipPanel({ open: true, concept, phase: "loading", sounding: false, progress: 0, clipUrl: null, prompt: "" })
+      const run = ++playbackRunRef.current
+
+      let data: ListeningResponse
       try {
-        const res = await fetch(`/api/tools/assessment-clip?concept=${encodeURIComponent(concept)}`)
-        if (!res.ok) throw new Error(`assessment-clip ${res.status}`)
-        const data = (await res.json()) as ClipResponse
-
-        // Preload both files up front so playback starts without a gap.
-        revokeObjectUrls()
-        const [urlA, urlB] = await Promise.all([preloadClip(data.clipAUrl), preloadClip(data.clipBUrl)])
-        objectUrlsRef.current = [urlA, urlB]
-        const urls = { A: urlA, B: urlB }
-
-        // Start in "waiting": hold playback until the mentor finishes its
-        // intro sentence so the clips don't play over the agent's voice.
-        setClipPanel({ open: true, phase: "waiting", sounding: null, progress: 0, urls })
-
-        // Lock the conversation while clips play: the mic is muted so neither
-        // the clips bleeding through speakers nor an eager early answer can
-        // trigger the agent mid-exercise. Unmuted again before the nudge.
-        safeSetMuted(true)
-        const section = ++sectionRunRef.current
-        ++playbackRunRef.current
-        const sectionStart = Date.now()
-        clipStoppedRef.current = false
-
-        // Releases the exercise: opens the mic and nudges the mentor to ask the
-        // question. Used both when the minimum window elapses and on manual
-        // "I'm ready". Guarded by section so it fires at most once.
-        const release = (message: string) => {
-          if (sectionRunRef.current !== section) return
-          releaseSectionRef.current = null
-          setClipPanel((p) => (p.urls ? { ...p, phase: "done", sounding: null, progress: 0 } : CLOSED_PANEL))
-          safeSetMuted(false)
-          // Restore the mentor's voice before prompting the question.
-          safeSetVolume(1)
-          safeSendUserMessage(message)
-        }
-        releaseSectionRef.current = () =>
-          release(
-            "[system] I'm ready now. Ask me the comparison question for this exercise — I can still replay either clip if I need to.",
-          )
-
-        // Play in the background; hold the mentor until the minimum window.
-        void (async () => {
-          try {
-            // Wait for the mentor to stop its current sentence before starting
-            // (cap ~8s so we never hang if the speaking signal never clears).
-            const deadline = Date.now() + 8000
-            while (isSpeakingRef.current && Date.now() < deadline) {
-              await new Promise((r) => setTimeout(r, 150))
-              if (sectionRunRef.current !== section) return
-            }
-            // Silence the mentor's voice for the whole clip segment. The agent
-            // will autonomously try to keep the conversation going (e.g. ask
-            // "A or B?") right after the tool call — muting its output means
-            // that turn can't be heard talking over the clips. Restored on
-            // release, when we prompt it to ask the question for real.
-            safeSetVolume(0)
-            // Small breath after the agent finishes before clip A.
-            await new Promise((r) => setTimeout(r, 350))
-            if (sectionRunRef.current !== section) return
-
-            setClipPanel((p) => (p.urls ? { ...p, phase: "playing" } : p))
-            if (!clipStoppedRef.current) {
-              await playToCompletion(urls.A, "A")
-              if (sectionRunRef.current !== section) return
-            }
-            if (!clipStoppedRef.current) {
-              await new Promise((r) => setTimeout(r, 800))
-              if (sectionRunRef.current !== section) return
-            }
-            if (!clipStoppedRef.current) {
-              await playToCompletion(urls.B, "B")
-              if (sectionRunRef.current !== section) return
-            }
-
-            // Clips done: show replays and hold the mentor silent until the
-            // minimum listening window elapses so it can't rush ahead.
-            setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : p))
-            while (Date.now() - sectionStart < CLIP_SECTION_MIN_MS) {
-              await new Promise((r) => setTimeout(r, 200))
-              if (sectionRunRef.current !== section) return
-            }
-            release(
-              "[system] The clips finished and the student has had time to listen. Now ask me the comparison question for this exercise.",
-            )
-          } catch {
-            if (sectionRunRef.current !== section) return
-            // Keep the panel open with replays available even on playback error.
-            setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : p))
-            while (Date.now() - sectionStart < CLIP_SECTION_MIN_MS) {
-              await new Promise((r) => setTimeout(r, 200))
-              if (sectionRunRef.current !== section) return
-            }
-            release(
-              "[system] Clip playback had trouble on my device, but I can replay the clips with the on-screen buttons. Ask me the comparison question.",
-            )
-          }
-        })()
-
-        return `The two clips are about to play on the student's screen. Your audio is muted for the student while they play, so do NOT try to talk or ask anything yet — anything you say now will not be heard. Wait for a [system] message telling you the student is ready; only then ask: "${data.promptToStudent}". The listening window lasts at least a minute and the student can replay either clip. The correct answer is clip ${data.correctAnswer} — never reveal it.`
+        const res = await fetch(`/api/tools/assessment-listen?concept=${encodeURIComponent(concept)}`)
+        if (!res.ok) throw new Error(`assessment-listen ${res.status}`)
+        data = (await res.json()) as ListeningResponse
       } catch {
-        setClipPanel(CLOSED_PANEL)
-        revokeObjectUrls()
-        return "Clip playback failed — apologize and skip this assessment"
+        if (playbackRunRef.current === run) setClipPanel(CLOSED_PANEL)
+        return "I couldn't load the listening clip — apologize, skip this one, and continue the intake."
       }
+
+      // Preload + play in the background so the tool returns immediately.
+      void (async () => {
+        try {
+          const objUrl = await preloadClip(data.clipUrl)
+          if (playbackRunRef.current !== run) {
+            URL.revokeObjectURL(objUrl)
+            return
+          }
+          revokeObjectUrls()
+          objectUrlsRef.current = [objUrl]
+          setClipPanel({
+            open: true,
+            concept,
+            phase: "playing",
+            sounding: false,
+            progress: 0,
+            clipUrl: objUrl,
+            prompt: data.prompt,
+          })
+          await playClip(objUrl)
+          if (playbackRunRef.current === run) {
+            setClipPanel((p) => ({ ...p, phase: "ready", sounding: false, progress: 0 }))
+          }
+        } catch {
+          if (playbackRunRef.current === run) {
+            setClipPanel((p) => (p.clipUrl ? { ...p, phase: "ready", sounding: false, progress: 0 } : CLOSED_PANEL))
+          }
+        }
+      })()
+
+      return `A short listening clip for the "${concept}" check is now playing on the student's screen, with a replay button they can use anytime. You can talk while it plays. Ask the student, in their own words: "${data.prompt}" FOR YOUR JUDGMENT ONLY — never say this part aloud: ${data.listenFor} After they describe what they hear, call record_answer("${concept}", correct) with your honest judgment, respond warmly without revealing whether they were right, then continue.`
     },
-    // isSpeakingRef is a ref; intentionally excluded from deps.
-    [playToCompletion, revokeObjectUrls, safeSendUserMessage, safeSetMuted, safeSetVolume],
+    [playClip, revokeObjectUrls],
   )
 
   /**
@@ -415,58 +298,23 @@ function IntakeMentorInner() {
     return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
   }, [])
 
-  /**
-   * Replays one clip from the already-preloaded pair. Never calls the API.
-   * Mutes the mic for the duration so the replay can't be heard as an answer.
-   */
-  const handleReplay = useCallback(
-    (slot: "A" | "B") => {
-      const urls = clipPanel.urls
-      if (!urls || clipPanel.sounding) return
-      const run = ++playbackRunRef.current
-      safeSetMuted(true)
-      playToCompletion(urls[slot], slot)
-        .catch(() => {
-          setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
-        })
-        .finally(() => {
-          if (playbackRunRef.current === run) safeSetMuted(false)
-        })
-    },
-    [clipPanel.urls, clipPanel.sounding, playToCompletion, safeSetMuted],
-  )
+  /** Replays the current clip from the preloaded object URL. Never hits the API. */
+  const handleReplay = useCallback(() => {
+    const url = clipPanel.clipUrl
+    if (!url || clipPanel.sounding) return
+    ++playbackRunRef.current
+    playClip(url).catch(() => {
+      setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
+    })
+  }, [clipPanel.clipUrl, clipPanel.sounding, playClip])
 
-  /**
-   * Stops the auto-play (e.g. to hear the mentor) WITHOUT losing the clips:
-   * the panel drops into "review" so replays stay available and the mentor
-   * stays held through the minimum window. Does not nudge the agent — the
-   * running clip sequence still owns the release.
-   */
-  const handleStopClips = useCallback(() => {
-    clipStoppedRef.current = true
-    cancelPlaybackRef.current?.()
-    if (audioRef.current) audioRef.current.pause()
-    setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : CLOSED_PANEL))
-  }, [])
-
-  /**
-   * "I'm ready": release the minimum listening window early, open the mic, and
-   * ask the mentor to pose the question. Replays remain available.
-   */
-  const handleReady = useCallback(() => {
-    releaseSectionRef.current?.()
-  }, [])
-
-  /** Fully dismisses the (already finished) clip panel. */
+  /** Dismisses the clip panel and stops any playback. */
   const handleDismissClips = useCallback(() => {
-    sectionRunRef.current++
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
-    releaseSectionRef.current = null
     if (audioRef.current) audioRef.current.pause()
-    safeSetVolume(1)
     setClipPanel(CLOSED_PANEL)
-  }, [safeSetVolume])
+  }, [])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -478,7 +326,7 @@ function IntakeMentorInner() {
   const beginSession = useCallback(
     async (transport: "webrtc" | "websocket") => {
       transportRef.current = transport
-      const clientTools = { play_assessment_pair: playAssessmentPair, show_plan: showPlan }
+      const clientTools = { play_listening_clip: playListeningClip, show_plan: showPlan }
       const dynamicVariables = { student_id: studentIdRef.current, language: lang }
 
       try {
@@ -509,7 +357,7 @@ function IntakeMentorInner() {
         setErrored(true)
       }
     },
-    [playAssessmentPair, showPlan, startSession, lang],
+    [playListeningClip, showPlan, startSession, lang],
   )
 
   // Keep the disconnect handler's fallback pointing at the latest starter.
@@ -542,13 +390,8 @@ function IntakeMentorInner() {
   }, [beginSession])
 
   const handleEnd = useCallback(() => {
-    sectionRunRef.current++
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
-    releaseSectionRef.current = null
-    // Restore agent volume in case we end mid-exercise (so a later session
-    // doesn't inherit a muted mentor).
-    safeSetVolume(1)
     try {
       endSession()
     } catch {
@@ -559,7 +402,7 @@ function IntakeMentorInner() {
     if (audioRef.current) {
       audioRef.current.pause()
     }
-  }, [endSession, revokeObjectUrls, safeSetVolume])
+  }, [endSession, revokeObjectUrls])
 
   if (!AGENT_ID) {
     return <p className="font-bold text-lg text-foreground/70">{c.unavailable}</p>
@@ -649,113 +492,61 @@ function IntakeMentorInner() {
         {statusLabel}
       </p>
 
-      {/* Clip player panel */}
+      {/* Listening-clip panel: one clip, replay, describe-out-loud */}
       {clipPanel.open && (
         <div className="relative w-full max-w-md flex flex-col items-center gap-4 px-5 py-4 rounded-2xl border-4 border-foreground bg-muted shadow-[4px_4px_0px_#2A0E45]">
-          {clipPanel.phase === "done" ? (
-            <button
-              type="button"
-              onClick={handleDismissClips}
-              aria-label={c.closeHelper}
-              className="absolute -top-3 -right-3 inline-flex items-center justify-center w-8 h-8 rounded-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
-            >
-              <X className="w-4 h-4" aria-hidden="true" />
-            </button>
-          ) : clipPanel.phase === "review" ? (
-            <button
-              type="button"
-              onClick={handleReady}
-              className="absolute -top-3 -right-3 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border-2 border-foreground bg-accent-yellow text-foreground font-bold text-xs shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
-            >
-              {c.imReady}
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleStopClips}
-              className="absolute -top-3 -right-3 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border-2 border-foreground bg-background text-foreground font-bold text-xs shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
-            >
-              <X className="w-3.5 h-3.5" aria-hidden="true" />
-              {c.stopClips}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={handleDismissClips}
+            aria-label={c.closeHelper}
+            className="absolute -top-3 -right-3 inline-flex items-center justify-center w-8 h-8 rounded-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
+          >
+            <X className="w-4 h-4" aria-hidden="true" />
+          </button>
 
           <p className="font-medium text-sm text-foreground/70 text-pretty text-center" aria-live="polite">
-            {clipPanel.phase === "done"
-              ? clipText.done
-              : clipPanel.phase === "waiting"
-                ? c.clipsWaiting
-                : clipPanel.phase === "review"
-                  ? c.clipsReview
-                  : clipText.listen}
+            {clipPanel.phase === "loading" ? c.clipLoading : clipPanel.prompt || c.listenAndDescribe}
           </p>
 
-          <div className="grid grid-cols-2 gap-3 w-full">
-            {(["A", "B"] as const).map((slot) => {
-              const active = clipPanel.sounding === slot
-              const dimmed = clipPanel.sounding !== null && !active
-              const label = slot === "A" ? clipText.clipA : clipText.clipB
-              return (
-                <div
-                  key={slot}
-                  className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-4 border-foreground transition-all duration-200 ${
-                    active
-                      ? "bg-accent-yellow shadow-[3px_3px_0px_#2A0E45] scale-[1.03]"
-                      : dimmed
-                        ? "bg-background opacity-50"
-                        : "bg-background"
-                  }`}
-                >
-                  <span className="inline-flex items-center gap-2 font-bold text-foreground">
-                    {active && (
-                      <Volume2 className="w-4 h-4 motion-safe:animate-pulse text-foreground" aria-hidden="true" />
-                    )}
-                    {label}
-                  </span>
+          <div
+            className={`flex flex-col items-center gap-2 w-full px-4 py-4 rounded-xl border-4 border-foreground transition-all duration-200 ${
+              clipPanel.sounding ? "bg-accent-yellow shadow-[3px_3px_0px_#2A0E45]" : "bg-background"
+            }`}
+          >
+            <span className="inline-flex items-center gap-2 font-bold text-foreground">
+              {clipPanel.sounding && (
+                <Volume2 className="w-4 h-4 motion-safe:animate-pulse text-foreground" aria-hidden="true" />
+              )}
+              {c.listeningClip}
+            </span>
 
-                  {/* Per-clip progress bar */}
-                  <div
-                    className="w-full h-2 rounded-full border-2 border-foreground bg-background overflow-hidden"
-                    role="progressbar"
-                    aria-label={label}
-                    aria-valuenow={active ? Math.round(clipPanel.progress * 100) : 0}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  >
-                    <div
-                      className="h-full bg-accent-pink transition-[width] duration-200"
-                      style={{ width: active ? `${Math.round(clipPanel.progress * 100)}%` : "0%" }}
-                    />
-                  </div>
+            {/* Progress bar */}
+            <div
+              className="w-full h-2 rounded-full border-2 border-foreground bg-background overflow-hidden"
+              role="progressbar"
+              aria-label={c.listeningClip}
+              aria-valuenow={clipPanel.sounding ? Math.round(clipPanel.progress * 100) : 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full bg-accent-pink transition-[width] duration-200"
+                style={{ width: clipPanel.sounding ? `${Math.round(clipPanel.progress * 100)}%` : "0%" }}
+              />
+            </div>
 
-                  {(clipPanel.phase === "review" || clipPanel.phase === "done") && (
-                    <button
-                      type="button"
-                      onClick={() => handleReplay(slot)}
-                      disabled={clipPanel.sounding !== null}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-foreground bg-accent-teal font-bold text-xs text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                      {clipText.replay}
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+            {clipPanel.phase !== "loading" && (
+              <button
+                type="button"
+                onClick={handleReplay}
+                disabled={clipPanel.sounding}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-2 border-foreground bg-accent-teal font-bold text-xs text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+                {clipText.replay}
+              </button>
+            )}
           </div>
-
-          {clipPanel.sounding && (
-            <p className="text-xs font-bold text-foreground/60" aria-live="polite">
-              {clipText.nowPlaying}: {clipPanel.sounding === "A" ? clipText.clipA : clipText.clipB}
-            </p>
-          )}
-
-          {(clipPanel.phase !== "done" || clipPanel.sounding) && (
-            <p className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground/60" aria-live="polite">
-              <MicOff className="w-3.5 h-3.5" aria-hidden="true" />
-              {c.micPaused}
-            </p>
-          )}
         </div>
       )}
 
