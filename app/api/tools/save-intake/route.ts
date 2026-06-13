@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb"
 import { getDocClient, TABLE_NAME } from "@/lib/aws"
 import { placeStudent } from "@/lib/placement"
+import { coerceNumber, coerceStringArray } from "@/lib/coerce"
 import type { EarItem, IntakeInput } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -35,13 +36,16 @@ function validate(body: Record<string, unknown>): { ok: true; data: IntakeInput 
     return { ok: false, error: `Invalid 'coordination' value '${String(coordination)}'. It must be one of: "broken", "emerging", "working".` }
   if (typeof coordinationQuote !== "string" || coordinationQuote.trim().length === 0)
     return { ok: false, error: "Missing 'coordinationQuote'. Send the student's own words (verbatim quote) about what happens when they try to play and sing at the same time." }
-  if (!Array.isArray(goalSongs) || goalSongs.some((s) => typeof s !== "string"))
-    return { ok: false, error: "Invalid 'goalSongs'. It must be an array of strings (song titles), with at most 3 entries." }
-  if (goalSongs.length > 3)
-    return { ok: false, error: `'goalSongs' has ${goalSongs.length} entries but the maximum is 3. Ask the student to pick their top 3 and resend.` }
-  if (typeof practiceMins !== "number" || !Number.isFinite(practiceMins) || practiceMins <= 0)
+  const goalSongsArr = coerceStringArray(goalSongs)
+  if (!goalSongsArr)
+    return { ok: false, error: "Invalid 'goalSongs'. It must be an array of song-title strings (a single comma-separated string is also accepted), with at most 3 entries." }
+  if (goalSongsArr.length > 3)
+    return { ok: false, error: `'goalSongs' has ${goalSongsArr.length} entries but the maximum is 3. Ask the student to pick their top 3 and resend.` }
+  const practiceMinsNum = coerceNumber(practiceMins)
+  if (practiceMinsNum === null || practiceMinsNum <= 0)
     return { ok: false, error: `Invalid 'practiceMins' value '${String(practiceMins)}'. It must be a positive number of minutes per practice session (e.g. 20).` }
-  if (typeof practiceDays !== "number" || !Number.isFinite(practiceDays) || practiceDays <= 0 || practiceDays > 7)
+  const practiceDaysNum = coerceNumber(practiceDays)
+  if (practiceDaysNum === null || practiceDaysNum <= 0 || practiceDaysNum > 7)
     return { ok: false, error: `Invalid 'practiceDays' value '${String(practiceDays)}'. It must be a number between 1 and 7 (days per week).` }
   if (quitReason !== null && quitReason !== undefined && typeof quitReason !== "string")
     return { ok: false, error: "Invalid 'quitReason'. It must be a string describing why they quit before, or null if they never quit." }
@@ -58,9 +62,9 @@ function validate(body: Record<string, unknown>): { ok: true; data: IntakeInput 
       voiceQuote: voiceQuote.trim(),
       coordination: coordination as IntakeInput["coordination"],
       coordinationQuote: coordinationQuote.trim(),
-      goalSongs: (goalSongs as string[]).map((s) => s.trim()).filter(Boolean),
-      practiceMins,
-      practiceDays,
+      goalSongs: goalSongsArr.map((s) => s.trim()).filter(Boolean),
+      practiceMins: practiceMinsNum,
+      practiceDays: practiceDaysNum,
       quitReason: typeof quitReason === "string" && quitReason.trim().length > 0 ? quitReason.trim() : null,
     },
   }
