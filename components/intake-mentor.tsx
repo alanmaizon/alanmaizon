@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw } from "lucide-react"
 import { ConversationProvider, useConversation } from "@elevenlabs/react"
+import { getListeningClip } from "@/lib/clips"
 import { useLanguage } from "./language-provider"
 import { RetroButton } from "./retro"
 
@@ -239,27 +240,21 @@ function IntakeMentorInner() {
    * ask plus what the clip demonstrates (for the agent's judgment only). The
    * mentor is NOT muted: it talks and listens naturally while the clip plays,
    * the student describes what they hear out loud, and the agent judges and
-   * records the answer. Returns immediately (after the fast metadata fetch) so
-   * the tool-call timeout can't expire during the audio download.
+   * records the answer. Resolves the clip data LOCALLY (no network) and returns
+   * immediately, so a serverless cold start can't make the tool time out and
+   * force the agent to retry. The audio file downloads in the background.
    */
   const playListeningClip = useCallback(
     async ({ concept }: { concept: EarConcept }) => {
-      openClipConceptRef.current = concept
-      setClipPanel({ open: true, concept, phase: "loading", sounding: false, progress: 0, clipUrl: null, prompt: "" })
-      const run = ++playbackRunRef.current
-
-      let data: ListeningResponse
-      try {
-        const res = await fetch(`/api/tools/assessment-listen?concept=${encodeURIComponent(concept)}`)
-        if (!res.ok) throw new Error(`assessment-listen ${res.status}`)
-        data = (await res.json()) as ListeningResponse
-      } catch {
-        if (playbackRunRef.current === run) {
-          openClipConceptRef.current = null
-          setClipPanel(CLOSED_PANEL)
-        }
-        return "I couldn't load the listening clip — apologize, skip this one, and continue the intake."
+      if (concept !== "rhythm" && concept !== "tonal" && concept !== "coord") {
+        return `Invalid concept "${String(concept)}". Call play_listening_clip with exactly "rhythm", "tonal", or "coord".`
       }
+
+      // Static clip data — no fetch, so the tool returns instantly.
+      const data: ListeningResponse = getListeningClip(concept)
+      openClipConceptRef.current = concept
+      setClipPanel({ open: true, concept, phase: "loading", sounding: false, progress: 0, clipUrl: null, prompt: data.prompt })
+      const run = ++playbackRunRef.current
 
       // Preload + play in the background so the tool returns immediately.
       void (async () => {
