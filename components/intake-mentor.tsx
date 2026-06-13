@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw } from "lucide-react"
+import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw, X } from "lucide-react"
 import { ConversationProvider, useConversation } from "@elevenlabs/react"
 import { useLanguage } from "./language-provider"
 import { RetroButton } from "./retro"
@@ -43,6 +43,8 @@ function copy(lang: "en" | "es") {
     micBlocked: "Mic blocked",
     planReady: "Your personalized plan is ready!",
     planCta: "View your 6-week plan",
+    micPaused: "Your mic is paused while the clips play.",
+    closeHelper: "Close the clip player",
   }
   const es = {
     start: "Comienza tu evaluación",
@@ -60,6 +62,8 @@ function copy(lang: "en" | "es") {
     micBlocked: "Micrófono bloqueado",
     planReady: "¡Tu plan personalizado está listo!",
     planCta: "Ver tu plan de 6 semanas",
+    micPaused: "Tu micrófono está en pausa mientras suenan los clips.",
+    closeHelper: "Cerrar el reproductor de clips",
   }
   return lang === "en" ? en : es
 }
@@ -102,6 +106,11 @@ function IntakeMentorInner() {
   // Stable per-session id, passed to the agent as the {{student_id}} dynamic
   // variable so every webhook tool call uses the same id.
   const studentIdRef = useRef("")
+  // Bumping the run id abandons any in-flight clip sequence (close button,
+  // disconnect, or a new pair starting). cancelPlaybackRef settles the
+  // currently-pending playToCompletion promise so the sequence can notice.
+  const playbackRunRef = useRef(0)
+  const cancelPlaybackRef = useRef<(() => void) | null>(null)
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -120,6 +129,8 @@ function IntakeMentorInner() {
     onDisconnect: (details) => {
       console.log("[v0] conversation onDisconnect, reason:", details?.reason, JSON.stringify(details))
       // Stop any clip audio and clear the panel regardless of why we disconnected.
+      playbackRunRef.current++
+      cancelPlaybackRef.current?.()
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
@@ -139,7 +150,7 @@ function IntakeMentorInner() {
       }
     },
   })
-  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage } = conversation
+  const { status, isSpeaking, isListening, startSession, endSession, sendUserMessage, setMuted } = conversation
 
   const isActive = status === "connected" || status === "connecting"
 
@@ -166,6 +177,7 @@ function IntakeMentorInner() {
         setClipPanel((p) => (p.sounding === slot ? { ...p, progress: ratio } : p))
       }
       const cleanup = () => {
+        cancelPlaybackRef.current = null
         audio.removeEventListener("ended", onEnded)
         audio.removeEventListener("error", onError)
         audio.removeEventListener("timeupdate", onTime)
@@ -178,6 +190,13 @@ function IntakeMentorInner() {
       const onError = () => {
         cleanup()
         reject(new Error("Audio playback error"))
+      }
+      // Lets the close button settle this promise; callers detect the
+      // abandoned run via playbackRunRef and stop quietly.
+      cancelPlaybackRef.current = () => {
+        cleanup()
+        setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
+        resolve()
       }
       audio.addEventListener("ended", onEnded)
       audio.addEventListener("error", onError)
@@ -215,18 +234,30 @@ function IntakeMentorInner() {
 
         setClipPanel({ open: true, phase: "playing", sounding: null, progress: 0, urls })
 
+        // Lock the conversation while clips play: the mic is muted so neither
+        // the clips bleeding through speakers nor an eager early answer can
+        // trigger the agent mid-exercise. Unmuted again before the nudge.
+        setMuted(true)
+        const run = ++playbackRunRef.current
+
         // Play in the background; nudge the agent when playback ends.
         void (async () => {
           try {
             await playToCompletion(urls.A, "A")
+            if (playbackRunRef.current !== run) return
             await new Promise((r) => setTimeout(r, 800))
+            if (playbackRunRef.current !== run) return
             await playToCompletion(urls.B, "B")
+            if (playbackRunRef.current !== run) return
             setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
+            setMuted(false)
             sendUserMessage(
               "[system] Both clips just finished playing. Now ask me the comparison question for this exercise.",
             )
           } catch {
+            if (playbackRunRef.current !== run) return
             setClipPanel(CLOSED_PANEL)
+            setMuted(false)
             sendUserMessage(
               "[system] Clip playback failed on my device. Briefly apologize and skip this listening exercise.",
             )
@@ -240,7 +271,7 @@ function IntakeMentorInner() {
         return "Clip playback failed — apologize and skip this assessment"
       }
     },
-    [playToCompletion, revokeObjectUrls, sendUserMessage],
+    [playToCompletion, revokeObjectUrls, sendUserMessage, setMuted],
   )
 
   /**
@@ -254,17 +285,45 @@ function IntakeMentorInner() {
     return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
   }, [])
 
-  /** Replays one clip from the already-preloaded pair. Never calls the API. */
+  /**
+   * Replays one clip from the already-preloaded pair. Never calls the API.
+   * Mutes the mic for the duration so the replay can't be heard as an answer.
+   */
   const handleReplay = useCallback(
     (slot: "A" | "B") => {
       const urls = clipPanel.urls
       if (!urls || clipPanel.sounding) return
-      playToCompletion(urls[slot], slot).catch(() => {
-        setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
-      })
+      const run = ++playbackRunRef.current
+      setMuted(true)
+      playToCompletion(urls[slot], slot)
+        .catch(() => {
+          setClipPanel((p) => ({ ...p, sounding: null, progress: 0 }))
+        })
+        .finally(() => {
+          if (playbackRunRef.current === run) setMuted(false)
+        })
     },
-    [clipPanel.urls, clipPanel.sounding, playToCompletion],
+    [clipPanel.urls, clipPanel.sounding, playToCompletion, setMuted],
   )
+
+  /**
+   * Closes the clip helper. If clips were still playing, stops them, restores
+   * the mic, and tells the agent to move straight to the question so the
+   * conversation never stalls waiting for a "finished" nudge that won't come.
+   */
+  const handleCloseClips = useCallback(() => {
+    const wasMidExercise = clipPanel.phase === "playing"
+    playbackRunRef.current++
+    cancelPlaybackRef.current?.()
+    if (audioRef.current) audioRef.current.pause()
+    setClipPanel(CLOSED_PANEL)
+    setMuted(false)
+    if (wasMidExercise) {
+      sendUserMessage(
+        "[system] I stopped the clips early. Ask me the comparison question for this exercise now.",
+      )
+    }
+  }, [clipPanel.phase, sendUserMessage, setMuted])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -319,6 +378,7 @@ function IntakeMentorInner() {
     setDropped(false)
     setPlanUrl(null)
     studentIdRef.current = crypto.randomUUID()
+    setMuted(false)
 
     // Create/reuse the audio element inside the user gesture for iOS Safari.
     if (!audioRef.current) {
@@ -337,9 +397,11 @@ function IntakeMentorInner() {
     }
 
     void beginSession("webrtc")
-  }, [beginSession])
+  }, [beginSession, setMuted])
 
   const handleEnd = useCallback(() => {
+    playbackRunRef.current++
+    cancelPlaybackRef.current?.()
     endSession()
     setClipPanel(CLOSED_PANEL)
     revokeObjectUrls()
@@ -438,7 +500,16 @@ function IntakeMentorInner() {
 
       {/* Clip player panel */}
       {clipPanel.open && (
-        <div className="w-full max-w-md flex flex-col items-center gap-4 px-5 py-4 rounded-2xl border-4 border-foreground bg-muted shadow-[4px_4px_0px_#2A0E45]">
+        <div className="relative w-full max-w-md flex flex-col items-center gap-4 px-5 py-4 rounded-2xl border-4 border-foreground bg-muted shadow-[4px_4px_0px_#2A0E45]">
+          <button
+            type="button"
+            onClick={handleCloseClips}
+            aria-label={c.closeHelper}
+            className="absolute -top-3 -right-3 inline-flex items-center justify-center w-8 h-8 rounded-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
+          >
+            <X className="w-4 h-4" aria-hidden="true" />
+          </button>
+
           <p className="font-medium text-sm text-foreground/70 text-pretty text-center" aria-live="polite">
             {clipPanel.phase === "done" ? clipText.done : clipText.listen}
           </p>
@@ -500,6 +571,13 @@ function IntakeMentorInner() {
           {clipPanel.sounding && (
             <p className="text-xs font-bold text-foreground/60" aria-live="polite">
               {clipText.nowPlaying}: {clipPanel.sounding === "A" ? clipText.clipA : clipText.clipB}
+            </p>
+          )}
+
+          {(clipPanel.phase === "playing" || clipPanel.sounding) && (
+            <p className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground/60" aria-live="polite">
+              <MicOff className="w-3.5 h-3.5" aria-hidden="true" />
+              {c.micPaused}
             </p>
           )}
         </div>
