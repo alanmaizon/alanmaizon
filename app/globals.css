@@ -53,3 +53,27 @@
     }
   }
 }
+
+@media print {
+  /* Hide interactive/decorative chrome from the printed plan. */
+  .no-print {
+    display: none !important;
+  }
+  /* Clean white page; keep the retro borders (they print as black). */
+  body {
+    background: #fff !important;
+  }
+  * {
+    box-shadow: none !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  /* Keep each week's card on a single page where possible. */
+  .plan-week {
+    break-inside: avoid;
+  }
+  /* Tighten vertical rhythm for paper. */
+  .plan-print-root {
+    padding: 0 !important;
+  }
+}

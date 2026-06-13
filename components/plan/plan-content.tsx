@@ -1,5 +1,6 @@
 import { Sun, Star, Music, Ear, CalendarDays, Sparkles, Feather } from "lucide-react"
 import { RetroButton } from "@/components/retro"
+import { PrintPlanButton } from "@/components/plan/print-button"
 import type { EarItem, GeneratedPlan, StudentProfile } from "@/lib/types"
 
 const STAGE_LABELS: Record<string, { en: string; es: string }> = {
@@ -26,6 +27,7 @@ const COPY = {
     lightNote: "This is a lighter plan that fits your schedule — small steps, steady wins.",
     cta: "Questions? Chat with Alan",
     backHome: "Back to home",
+    print: "Print / Save PDF",
   },
   es: {
     yourPlan: "Tu Plan de 6 Semanas",
@@ -44,6 +46,7 @@ const COPY = {
     lightNote: "Este es un plan más ligero que se ajusta a tu horario — pasos pequeños, logros constantes.",
     cta: "¿Preguntas? Habla con Alan",
     backHome: "Volver al inicio",
+    print: "Imprimir / Guardar PDF",
   },
 }
 
@@ -60,7 +63,7 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
   const correctCount = earItems.filter((i) => i.correct).length
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-background plan-print-root">
       {/* Header */}
       <header className="bg-primary border-b-4 border-foreground">
         <div className="max-w-4xl mx-auto px-4 py-12 flex flex-col items-center gap-4 text-center">
@@ -71,6 +74,7 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
             <Star className="w-5 h-5" aria-hidden="true" />
             {stageLabel}
           </span>
+          <PrintPlanButton label={t.print} />
         </div>
       </header>
 
@@ -118,7 +122,7 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
           {plan.weeks.map((week) => (
             <article
               key={week.week}
-              className="border-4 border-foreground rounded-3xl bg-card overflow-hidden shadow-[6px_6px_0px_var(--color-accent-yellow)]"
+              className="plan-week border-4 border-foreground rounded-3xl bg-card overflow-hidden shadow-[6px_6px_0px_var(--color-accent-yellow)]"
             >
               <div className="bg-primary px-6 py-3 flex items-center gap-3 border-b-4 border-foreground">
                 <span className="bg-background text-foreground font-bold rounded-full w-10 h-10 flex items-center justify-center border-2 border-foreground">
@@ -158,7 +162,7 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
           ))}
         </section>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pb-10">
+        <div className="no-print flex flex-col sm:flex-row items-center justify-center gap-4 pb-10">
           <RetroButton href="/#contact" variant="primary">
             {t.cta}
           </RetroButton>
