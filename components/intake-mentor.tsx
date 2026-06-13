@@ -40,6 +40,11 @@ const CLOSED_PANEL: ClipPanelState = {
   prompt: "",
 }
 
+// How long the clip panel stays up after the clip finishes playing before it
+// auto-closes (reset if the student replays). Backstop so the last clip can't
+// linger when the agent doesn't call record_answer for it.
+const CLIP_AUTO_CLOSE_MS = 20000
+
 function copy(lang: "en" | "es") {
   const en = {
     start: "Start your intake",
@@ -123,6 +128,10 @@ function IntakeMentorInner() {
   // close ONLY its own clip, so a late record_answer can't kill the next clip
   // that already started playing.
   const openClipConceptRef = useRef<EarConcept | null>(null)
+  // Backstop timer: after a clip finishes playing, auto-close the panel so the
+  // LAST clip (which has no following clip to replace it) can't linger if the
+  // agent never calls record_answer for it. Reset whenever a clip plays.
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -144,6 +153,10 @@ function IntakeMentorInner() {
       playbackRunRef.current++
       cancelPlaybackRef.current?.()
       openClipConceptRef.current = null
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current)
+        autoCloseTimerRef.current = null
+      }
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
@@ -217,6 +230,34 @@ function IntakeMentorInner() {
     })
   }, [])
 
+  const clearAutoClose = useCallback(() => {
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current)
+      autoCloseTimerRef.current = null
+    }
+  }, [])
+
+  /** Closes the clip panel and stops audio. */
+  const closeClipPanel = useCallback(() => {
+    clearAutoClose()
+    openClipConceptRef.current = null
+    playbackRunRef.current++
+    cancelPlaybackRef.current?.()
+    if (audioRef.current) audioRef.current.pause()
+    setClipPanel(CLOSED_PANEL)
+  }, [clearAutoClose])
+
+  /** After a clip finishes, arm the backstop that closes the panel if nothing else does. */
+  const scheduleAutoClose = useCallback(
+    (run: number) => {
+      clearAutoClose()
+      autoCloseTimerRef.current = setTimeout(() => {
+        if (playbackRunRef.current === run) closeClipPanel()
+      }, CLIP_AUTO_CLOSE_MS)
+    },
+    [clearAutoClose, closeClipPanel],
+  )
+
   /**
    * Client tool the agent calls — once per concept (rhythm → tonal → coord).
    * Plays a SINGLE clip on the student's screen and returns the question to
@@ -235,6 +276,7 @@ function IntakeMentorInner() {
 
       // Static clip data — no fetch, so the tool returns instantly.
       const data: ListeningResponse = getListeningClip(concept)
+      clearAutoClose()
       openClipConceptRef.current = concept
       const run = ++playbackRunRef.current
       // Stream the clip directly (no full-file download first) so playback
@@ -247,29 +289,36 @@ function IntakeMentorInner() {
           await playClip(data.clipUrl)
           if (playbackRunRef.current === run) {
             setClipPanel((p) => ({ ...p, phase: "ready", sounding: false, progress: 0 }))
+            scheduleAutoClose(run)
           }
         } catch {
           if (playbackRunRef.current === run) {
             setClipPanel((p) => (p.clipUrl ? { ...p, phase: "ready", sounding: false, progress: 0 } : CLOSED_PANEL))
+            scheduleAutoClose(run)
           }
         }
       })()
 
       return `A short listening clip for the "${concept}" check is playing on the student's screen right now, with a replay button. Say at most ONE brief lead-in and then stay quiet while it plays — do NOT repeat yourself or re-announce the clip. After it, ask the student, in their own words: "${data.prompt}" FOR YOUR JUDGMENT ONLY — never say this part aloud: ${data.listenFor} After they describe what they hear, call record_answer("${concept}", correct) with your honest judgment, respond warmly without revealing whether they were right, then continue.`
     },
-    [playClip],
+    [playClip, clearAutoClose, scheduleAutoClose],
   )
 
   /**
    * Client tool the agent calls after save-intake succeeds. Reveals a button
    * to the student's personalized plan page. Accepts either the planUrl
    * returned by save-intake or a studentId; falls back to this session's id.
+   * Also closes any lingering clip panel — the intake is wrapping up.
    */
-  const showPlan = useCallback(async ({ planUrl: url, studentId }: { planUrl?: string; studentId?: string }) => {
-    const resolved = url || `/plan/${encodeURIComponent(studentId || studentIdRef.current)}`
-    setPlanUrl(resolved)
-    return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
-  }, [])
+  const showPlan = useCallback(
+    async ({ planUrl: url, studentId }: { planUrl?: string; studentId?: string }) => {
+      closeClipPanel()
+      const resolved = url || `/plan/${encodeURIComponent(studentId || studentIdRef.current)}`
+      setPlanUrl(resolved)
+      return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
+    },
+    [closeClipPanel],
+  )
 
   /**
    * Client tool the agent calls right after the student describes a clip.
@@ -283,11 +332,7 @@ function IntakeMentorInner() {
       // If the agent already moved on and the next clip is up, a late
       // record_answer for the previous concept must not kill it.
       if (openClipConceptRef.current === concept) {
-        openClipConceptRef.current = null
-        playbackRunRef.current++
-        cancelPlaybackRef.current?.()
-        if (audioRef.current) audioRef.current.pause()
-        setClipPanel(CLOSED_PANEL)
+        closeClipPanel()
       }
 
       // Prefer the studentId the agent passes (bind it to system__conversation_id
@@ -318,18 +363,24 @@ function IntakeMentorInner() {
         return "Couldn't save that answer — continue the intake; you can mention the ear check couldn't be saved."
       }
     },
-    [getId],
+    [getId, closeClipPanel],
   )
 
-  /** Replays the current clip from the preloaded object URL. Never hits the API. */
+  /** Replays the current clip by streaming it again. Resets the auto-close backstop. */
   const handleReplay = useCallback(() => {
     const url = clipPanel.clipUrl
     if (!url || clipPanel.sounding) return
-    ++playbackRunRef.current
-    playClip(url).catch(() => {
-      setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
-    })
-  }, [clipPanel.clipUrl, clipPanel.sounding, playClip])
+    clearAutoClose()
+    const run = ++playbackRunRef.current
+    playClip(url)
+      .then(() => {
+        if (playbackRunRef.current === run) scheduleAutoClose(run)
+      })
+      .catch(() => {
+        setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
+        if (playbackRunRef.current === run) scheduleAutoClose(run)
+      })
+  }, [clipPanel.clipUrl, clipPanel.sounding, playClip, clearAutoClose, scheduleAutoClose])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -412,6 +463,7 @@ function IntakeMentorInner() {
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
     openClipConceptRef.current = null
+    clearAutoClose()
     try {
       endSession()
     } catch {
@@ -421,7 +473,7 @@ function IntakeMentorInner() {
     if (audioRef.current) {
       audioRef.current.pause()
     }
-  }, [endSession])
+  }, [endSession, clearAutoClose])
 
   if (!AGENT_ID) {
     return <p className="font-bold text-lg text-foreground/70">{c.unavailable}</p>
