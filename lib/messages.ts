@@ -237,7 +237,7 @@ export const PLACEHOLDERS = {
   PRICE_BEGINNER: "€30/hr",
   PRICE_BUNDLE: "€150/mo",
   PRICE_FASTTRACK: "€299",
-  DEMO_VIDEO_ID: "dQw4w9WgXcQ",
+  DEMO_VIDEO_ID: "F4QDZ0Oc6Yw",
   SITE_URL: "https://alanmaizon.com",
 }
 
