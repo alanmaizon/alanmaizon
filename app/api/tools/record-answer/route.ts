@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { PutCommand } from "@aws-sdk/lib-dynamodb"
 import { getDocClient, TABLE_NAME } from "@/lib/aws"
 import { isEarConcept } from "@/lib/clips"
+import { coerceBoolean } from "@/lib/coerce"
 
 export const runtime = "nodejs"
 
@@ -38,9 +39,10 @@ export async function POST(request: Request) {
     )
   }
 
-  if (typeof correct !== "boolean") {
+  const correctBool = coerceBoolean(correct)
+  if (correctBool === null) {
     return NextResponse.json(
-      { error: `Invalid 'correct' value '${String(correct)}'. It must be a boolean: true if the student answered the clip question correctly, false otherwise. Do not send a string.` },
+      { error: `Invalid 'correct' value '${String(correct)}'. It must indicate whether the student answered correctly: true or false (booleans are preferred, but "true"/"false" strings are accepted).` },
       { status: 400 },
     )
   }
@@ -54,13 +56,13 @@ export async function POST(request: Request) {
           PK: `STUDENT#${studentId.trim()}`,
           SK: `EAR#${concept}`,
           concept,
-          correct,
+          correct: correctBool,
           createdAt: new Date().toISOString(),
         },
       }),
     )
 
-    return NextResponse.json({ ok: true, studentId: studentId.trim(), concept, correct })
+    return NextResponse.json({ ok: true, studentId: studentId.trim(), concept, correct: correctBool })
   } catch (err) {
     console.error("[record-answer] DynamoDB error:", err)
     return NextResponse.json(
