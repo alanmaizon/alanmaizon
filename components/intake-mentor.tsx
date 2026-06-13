@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw, X } from "lucide-react"
+import { Mic, Headphones, MicOff, PhoneOff, Radio, Volume2, RotateCcw } from "lucide-react"
 import { ConversationProvider, useConversation } from "@elevenlabs/react"
 import { useLanguage } from "./language-provider"
 import { RetroButton } from "./retro"
@@ -167,7 +167,7 @@ function IntakeMentorInner() {
       }
     },
   })
-  const { status, isSpeaking, isListening, startSession, endSession } = conversation
+  const { status, isSpeaking, isListening, startSession, endSession, getId } = conversation
 
   const isActive = status === "connected" || status === "connecting"
 
@@ -298,6 +298,51 @@ function IntakeMentorInner() {
     return "The plan button is now visible on the student's screen. Tell them to tap 'View your 6-week plan' below, congratulate them, and wrap up the conversation."
   }, [])
 
+  /**
+   * Client tool the agent calls right after the student describes a clip.
+   * Records the result (using the conversation id so it matches save_intake)
+   * and AUTO-CLOSES the clip panel so it can't linger or collide with the next
+   * clip. The agent's spoken acknowledgement happens around the same time.
+   */
+  const recordAnswer = useCallback(
+    async ({ concept, correct, studentId }: { concept: string; correct: unknown; studentId?: string }) => {
+      // Close the current clip panel immediately — the answer is in.
+      playbackRunRef.current++
+      cancelPlaybackRef.current?.()
+      if (audioRef.current) audioRef.current.pause()
+      setClipPanel(CLOSED_PANEL)
+
+      // Prefer the studentId the agent passes (bind it to system__conversation_id
+      // in the dashboard) so it matches save_intake exactly. Fall back to the
+      // SDK conversation id, then this session's generated id.
+      let resolvedId = typeof studentId === "string" ? studentId.trim() : ""
+      if (!resolvedId) {
+        try {
+          resolvedId = getId()
+        } catch {
+          // No active conversation id available.
+        }
+      }
+      if (!resolvedId) resolvedId = studentIdRef.current
+
+      try {
+        const res = await fetch("/api/tools/record-answer", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ studentId: resolvedId, concept, correct }),
+        })
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string }
+          return body.error || "Couldn't save that answer — continue the intake and mention the ear check couldn't be saved."
+        }
+        return "Answer recorded. React warmly without revealing if they were right, then move to the next clip or step."
+      } catch {
+        return "Couldn't save that answer — continue the intake; you can mention the ear check couldn't be saved."
+      }
+    },
+    [getId],
+  )
+
   /** Replays the current clip from the preloaded object URL. Never hits the API. */
   const handleReplay = useCallback(() => {
     const url = clipPanel.clipUrl
@@ -307,14 +352,6 @@ function IntakeMentorInner() {
       setClipPanel((p) => ({ ...p, sounding: false, progress: 0 }))
     })
   }, [clipPanel.clipUrl, clipPanel.sounding, playClip])
-
-  /** Dismisses the clip panel and stops any playback. */
-  const handleDismissClips = useCallback(() => {
-    playbackRunRef.current++
-    cancelPlaybackRef.current?.()
-    if (audioRef.current) audioRef.current.pause()
-    setClipPanel(CLOSED_PANEL)
-  }, [])
 
   /**
    * Starts a session over the given transport. Mic permission must already be
@@ -326,7 +363,11 @@ function IntakeMentorInner() {
   const beginSession = useCallback(
     async (transport: "webrtc" | "websocket") => {
       transportRef.current = transport
-      const clientTools = { play_listening_clip: playListeningClip, show_plan: showPlan }
+      const clientTools = {
+        play_listening_clip: playListeningClip,
+        record_answer: recordAnswer,
+        show_plan: showPlan,
+      }
       const dynamicVariables = { student_id: studentIdRef.current, language: lang }
 
       try {
@@ -357,7 +398,7 @@ function IntakeMentorInner() {
         setErrored(true)
       }
     },
-    [playListeningClip, showPlan, startSession, lang],
+    [playListeningClip, recordAnswer, showPlan, startSession, lang],
   )
 
   // Keep the disconnect handler's fallback pointing at the latest starter.
@@ -494,16 +535,7 @@ function IntakeMentorInner() {
 
       {/* Listening-clip panel: one clip, replay, describe-out-loud */}
       {clipPanel.open && (
-        <div className="relative w-full max-w-md flex flex-col items-center gap-4 px-5 py-4 rounded-2xl border-4 border-foreground bg-muted shadow-[4px_4px_0px_#2A0E45]">
-          <button
-            type="button"
-            onClick={handleDismissClips}
-            aria-label={c.closeHelper}
-            className="absolute -top-3 -right-3 inline-flex items-center justify-center w-8 h-8 rounded-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
-          >
-            <X className="w-4 h-4" aria-hidden="true" />
-          </button>
-
+        <div className="w-full max-w-md flex flex-col items-center gap-4 px-5 py-4 rounded-2xl border-4 border-foreground bg-muted shadow-[4px_4px_0px_#2A0E45]">
           <p className="font-medium text-sm text-foreground/70 text-pretty text-center" aria-live="polite">
             {clipPanel.phase === "loading" ? c.clipLoading : clipPanel.prompt || c.listenAndDescribe}
           </p>
