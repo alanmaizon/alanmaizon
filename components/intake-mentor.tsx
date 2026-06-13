@@ -128,6 +128,10 @@ function IntakeMentorInner() {
   // currently-pending playClip promise so the sequence can notice.
   const playbackRunRef = useRef(0)
   const cancelPlaybackRef = useRef<(() => void) | null>(null)
+  // Which concept's clip the panel is currently showing. Lets record_answer
+  // close ONLY its own clip, so a late record_answer can't kill the next clip
+  // that already started playing.
+  const openClipConceptRef = useRef<EarConcept | null>(null)
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -148,6 +152,7 @@ function IntakeMentorInner() {
       // Stop any clip audio and clear the panel regardless of why we disconnected.
       playbackRunRef.current++
       cancelPlaybackRef.current?.()
+      openClipConceptRef.current = null
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
@@ -239,6 +244,7 @@ function IntakeMentorInner() {
    */
   const playListeningClip = useCallback(
     async ({ concept }: { concept: EarConcept }) => {
+      openClipConceptRef.current = concept
       setClipPanel({ open: true, concept, phase: "loading", sounding: false, progress: 0, clipUrl: null, prompt: "" })
       const run = ++playbackRunRef.current
 
@@ -248,7 +254,10 @@ function IntakeMentorInner() {
         if (!res.ok) throw new Error(`assessment-listen ${res.status}`)
         data = (await res.json()) as ListeningResponse
       } catch {
-        if (playbackRunRef.current === run) setClipPanel(CLOSED_PANEL)
+        if (playbackRunRef.current === run) {
+          openClipConceptRef.current = null
+          setClipPanel(CLOSED_PANEL)
+        }
         return "I couldn't load the listening clip — apologize, skip this one, and continue the intake."
       }
 
@@ -306,11 +315,16 @@ function IntakeMentorInner() {
    */
   const recordAnswer = useCallback(
     async ({ concept, correct, studentId }: { concept: string; correct: unknown; studentId?: string }) => {
-      // Close the current clip panel immediately — the answer is in.
-      playbackRunRef.current++
-      cancelPlaybackRef.current?.()
-      if (audioRef.current) audioRef.current.pause()
-      setClipPanel(CLOSED_PANEL)
+      // Close the clip panel ONLY if it's still showing this concept's clip.
+      // If the agent already moved on and the next clip is up, a late
+      // record_answer for the previous concept must not kill it.
+      if (openClipConceptRef.current === concept) {
+        openClipConceptRef.current = null
+        playbackRunRef.current++
+        cancelPlaybackRef.current?.()
+        if (audioRef.current) audioRef.current.pause()
+        setClipPanel(CLOSED_PANEL)
+      }
 
       // Prefer the studentId the agent passes (bind it to system__conversation_id
       // in the dashboard) so it matches save_intake exactly. Fall back to the
@@ -433,6 +447,7 @@ function IntakeMentorInner() {
   const handleEnd = useCallback(() => {
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
+    openClipConceptRef.current = null
     try {
       endSession()
     } catch {
