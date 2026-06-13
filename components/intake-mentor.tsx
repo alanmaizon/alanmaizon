@@ -19,14 +19,20 @@ type ClipResponse = {
 type ClipPanelState = {
   open: boolean
   // "waiting" = holding until the mentor finishes talking; "playing" = auto-
-  // playing the A/B pair; "done" = finished or stopped, replays available.
-  phase: "waiting" | "playing" | "done"
+  // playing the A/B pair; "review" = clips done, replays available, mentor
+  // held silent through the minimum listening window; "done" = released, the
+  // mentor has been asked to pose the question and the mic is open.
+  phase: "waiting" | "playing" | "review" | "done"
   sounding: "A" | "B" | null
   progress: number
   urls: { A: string; B: string } | null
 }
 
 const CLOSED_PANEL: ClipPanelState = { open: false, phase: "waiting", sounding: null, progress: 0, urls: null }
+
+// Minimum time the clip exercise holds the mentor silent so it can't rush into
+// the next task — gives the student room to listen and replay before answering.
+const CLIP_SECTION_MIN_MS = 60000
 
 function copy(lang: "en" | "es") {
   const en = {
@@ -49,6 +55,8 @@ function copy(lang: "en" | "es") {
     closeHelper: "Close the clip player",
     stopClips: "Stop",
     clipsWaiting: "Get ready — the clips will play in a moment.",
+    clipsReview: "Take your time — replay either clip. The mentor will ask you shortly.",
+    imReady: "I'm ready",
   }
   const es = {
     start: "Comienza tu evaluación",
@@ -70,6 +78,8 @@ function copy(lang: "en" | "es") {
     closeHelper: "Cerrar el reproductor de clips",
     stopClips: "Detener",
     clipsWaiting: "Prepárate — los clips sonarán en un momento.",
+    clipsReview: "Tómate tu tiempo — repite los clips. El mentor te preguntará en breve.",
+    imReady: "Estoy listo",
   }
   return lang === "en" ? en : es
 }
@@ -117,6 +127,16 @@ function IntakeMentorInner() {
   // currently-pending playToCompletion promise so the sequence can notice.
   const playbackRunRef = useRef(0)
   const cancelPlaybackRef = useRef<(() => void) | null>(null)
+  // Lifecycle of the whole clip exercise (auto-play + minimum listening
+  // window). Bumped to abandon the section (disconnect, end, dismiss, new
+  // pair). Kept separate from playbackRunRef so a replay can't abort it.
+  const sectionRunRef = useRef(0)
+  // Set by the active clip run; releases the minimum listening window early
+  // when the student taps "I'm ready".
+  const releaseSectionRef = useRef<(() => void) | null>(null)
+  // Set by "Stop" to skip the rest of the auto-play and jump to the review
+  // (replays available) without ending the minimum listening window.
+  const clipStoppedRef = useRef(false)
 
   const conversation = useConversation({
     onConnect: (props) => {
@@ -135,8 +155,10 @@ function IntakeMentorInner() {
     onDisconnect: (details) => {
       console.log("[v0] conversation onDisconnect, reason:", details?.reason, JSON.stringify(details))
       // Stop any clip audio and clear the panel regardless of why we disconnected.
+      sectionRunRef.current++
       playbackRunRef.current++
       cancelPlaybackRef.current?.()
+      releaseSectionRef.current = null
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
@@ -277,9 +299,27 @@ function IntakeMentorInner() {
         // the clips bleeding through speakers nor an eager early answer can
         // trigger the agent mid-exercise. Unmuted again before the nudge.
         safeSetMuted(true)
-        const run = ++playbackRunRef.current
+        const section = ++sectionRunRef.current
+        ++playbackRunRef.current
+        const sectionStart = Date.now()
+        clipStoppedRef.current = false
 
-        // Play in the background; nudge the agent when playback ends.
+        // Releases the exercise: opens the mic and nudges the mentor to ask the
+        // question. Used both when the minimum window elapses and on manual
+        // "I'm ready". Guarded by section so it fires at most once.
+        const release = (message: string) => {
+          if (sectionRunRef.current !== section) return
+          releaseSectionRef.current = null
+          setClipPanel((p) => (p.urls ? { ...p, phase: "done", sounding: null, progress: 0 } : CLOSED_PANEL))
+          safeSetMuted(false)
+          safeSendUserMessage(message)
+        }
+        releaseSectionRef.current = () =>
+          release(
+            "[system] I'm ready now. Ask me the comparison question for this exercise — I can still replay either clip if I need to.",
+          )
+
+        // Play in the background; hold the mentor until the minimum window.
         void (async () => {
           try {
             // Wait for the mentor to stop talking before starting (cap ~12s so
@@ -287,36 +327,51 @@ function IntakeMentorInner() {
             const deadline = Date.now() + 12000
             while (isSpeakingRef.current && Date.now() < deadline) {
               await new Promise((r) => setTimeout(r, 150))
-              if (playbackRunRef.current !== run) return
+              if (sectionRunRef.current !== section) return
             }
             // Small breath after the agent finishes before clip A.
             await new Promise((r) => setTimeout(r, 350))
-            if (playbackRunRef.current !== run) return
+            if (sectionRunRef.current !== section) return
 
             setClipPanel((p) => (p.urls ? { ...p, phase: "playing" } : p))
-            await playToCompletion(urls.A, "A")
-            if (playbackRunRef.current !== run) return
-            await new Promise((r) => setTimeout(r, 800))
-            if (playbackRunRef.current !== run) return
-            await playToCompletion(urls.B, "B")
-            if (playbackRunRef.current !== run) return
-            setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
-            safeSetMuted(false)
-            safeSendUserMessage(
-              "[system] Both clips just finished playing. Now ask me the comparison question for this exercise.",
+            if (!clipStoppedRef.current) {
+              await playToCompletion(urls.A, "A")
+              if (sectionRunRef.current !== section) return
+            }
+            if (!clipStoppedRef.current) {
+              await new Promise((r) => setTimeout(r, 800))
+              if (sectionRunRef.current !== section) return
+            }
+            if (!clipStoppedRef.current) {
+              await playToCompletion(urls.B, "B")
+              if (sectionRunRef.current !== section) return
+            }
+
+            // Clips done: show replays and hold the mentor silent until the
+            // minimum listening window elapses so it can't rush ahead.
+            setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : p))
+            while (Date.now() - sectionStart < CLIP_SECTION_MIN_MS) {
+              await new Promise((r) => setTimeout(r, 200))
+              if (sectionRunRef.current !== section) return
+            }
+            release(
+              "[system] The clips finished and the student has had time to listen. Now ask me the comparison question for this exercise.",
             )
           } catch {
-            if (playbackRunRef.current !== run) return
-            // Keep the panel open in "done" so replay buttons stay available.
-            setClipPanel({ open: true, phase: "done", sounding: null, progress: 0, urls })
-            safeSetMuted(false)
-            safeSendUserMessage(
+            if (sectionRunRef.current !== section) return
+            // Keep the panel open with replays available even on playback error.
+            setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : p))
+            while (Date.now() - sectionStart < CLIP_SECTION_MIN_MS) {
+              await new Promise((r) => setTimeout(r, 200))
+              if (sectionRunRef.current !== section) return
+            }
+            release(
               "[system] Clip playback had trouble on my device, but I can replay the clips with the on-screen buttons. Ask me the comparison question.",
             )
           }
         })()
 
-        return `The two clips will play on the student's screen right after you finish your current sentence — keep your intro short. Stay completely silent once they begin and do NOT speak until you receive a [system] message saying the clips finished. The student can replay either clip with on-screen buttons. Then ask the student: "${data.promptToStudent}". The correct answer is clip ${data.correctAnswer} — never reveal it.`
+        return `The two clips will play on the student's screen right after you finish your current sentence — keep your intro short. Stay completely silent once they begin and do NOT speak again until you receive a [system] message telling you to ask the question. This listening window lasts at least a minute, and the student can replay either clip — do not rush or move on early. When prompted, ask the student: "${data.promptToStudent}". The correct answer is clip ${data.correctAnswer} — never reveal it.`
       } catch {
         setClipPanel(CLOSED_PANEL)
         revokeObjectUrls()
@@ -360,26 +415,32 @@ function IntakeMentorInner() {
   )
 
   /**
-   * Stops in-progress clip playback (e.g. to hear the mentor) WITHOUT losing
-   * the clips: the panel stays in "done" so the replay buttons remain, the mic
-   * is restored, and the agent is nudged to ask the question. The student can
-   * always replay either clip before answering.
+   * Stops the auto-play (e.g. to hear the mentor) WITHOUT losing the clips:
+   * the panel drops into "review" so replays stay available and the mentor
+   * stays held through the minimum window. Does not nudge the agent — the
+   * running clip sequence still owns the release.
    */
   const handleStopClips = useCallback(() => {
-    playbackRunRef.current++
+    clipStoppedRef.current = true
     cancelPlaybackRef.current?.()
     if (audioRef.current) audioRef.current.pause()
-    safeSetMuted(false)
-    setClipPanel((p) => (p.urls ? { ...p, phase: "done", sounding: null, progress: 0 } : CLOSED_PANEL))
-    safeSendUserMessage(
-      "[system] I stopped the clips — I can replay either one with the on-screen buttons whenever I'm ready. Ask me the comparison question for this exercise.",
-    )
-  }, [safeSendUserMessage, safeSetMuted])
+    setClipPanel((p) => (p.urls ? { ...p, phase: "review", sounding: null, progress: 0 } : CLOSED_PANEL))
+  }, [])
+
+  /**
+   * "I'm ready": release the minimum listening window early, open the mic, and
+   * ask the mentor to pose the question. Replays remain available.
+   */
+  const handleReady = useCallback(() => {
+    releaseSectionRef.current?.()
+  }, [])
 
   /** Fully dismisses the (already finished) clip panel. */
   const handleDismissClips = useCallback(() => {
+    sectionRunRef.current++
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
+    releaseSectionRef.current = null
     if (audioRef.current) audioRef.current.pause()
     setClipPanel(CLOSED_PANEL)
   }, [])
@@ -458,8 +519,10 @@ function IntakeMentorInner() {
   }, [beginSession])
 
   const handleEnd = useCallback(() => {
+    sectionRunRef.current++
     playbackRunRef.current++
     cancelPlaybackRef.current?.()
+    releaseSectionRef.current = null
     try {
       endSession()
     } catch {
@@ -572,6 +635,14 @@ function IntakeMentorInner() {
             >
               <X className="w-4 h-4" aria-hidden="true" />
             </button>
+          ) : clipPanel.phase === "review" ? (
+            <button
+              type="button"
+              onClick={handleReady}
+              className="absolute -top-3 -right-3 inline-flex items-center gap-1.5 px-3 h-8 rounded-full border-2 border-foreground bg-accent-yellow text-foreground font-bold text-xs shadow-[2px_2px_0px_#2A0E45] transition-transform hover:-translate-y-0.5"
+            >
+              {c.imReady}
+            </button>
           ) : (
             <button
               type="button"
@@ -588,7 +659,9 @@ function IntakeMentorInner() {
               ? clipText.done
               : clipPanel.phase === "waiting"
                 ? c.clipsWaiting
-                : clipText.listen}
+                : clipPanel.phase === "review"
+                  ? c.clipsReview
+                  : clipText.listen}
           </p>
 
           <div className="grid grid-cols-2 gap-3 w-full">
@@ -629,7 +702,7 @@ function IntakeMentorInner() {
                     />
                   </div>
 
-                  {clipPanel.phase !== "waiting" && (
+                  {(clipPanel.phase === "review" || clipPanel.phase === "done") && (
                     <button
                       type="button"
                       onClick={() => handleReplay(slot)}
