@@ -305,26 +305,31 @@ function IntakeMentorInner() {
    * clip. The agent's spoken acknowledgement happens around the same time.
    */
   const recordAnswer = useCallback(
-    async ({ concept, correct }: { concept: string; correct: unknown }) => {
+    async ({ concept, correct, studentId }: { concept: string; correct: unknown; studentId?: string }) => {
       // Close the current clip panel immediately — the answer is in.
       playbackRunRef.current++
       cancelPlaybackRef.current?.()
       if (audioRef.current) audioRef.current.pause()
       setClipPanel(CLOSED_PANEL)
 
-      let studentId = ""
-      try {
-        studentId = getId()
-      } catch {
-        // No active conversation id available.
+      // Prefer the studentId the agent passes (bind it to system__conversation_id
+      // in the dashboard) so it matches save_intake exactly. Fall back to the
+      // SDK conversation id, then this session's generated id.
+      let resolvedId = typeof studentId === "string" ? studentId.trim() : ""
+      if (!resolvedId) {
+        try {
+          resolvedId = getId()
+        } catch {
+          // No active conversation id available.
+        }
       }
-      if (!studentId) studentId = studentIdRef.current
+      if (!resolvedId) resolvedId = studentIdRef.current
 
       try {
         const res = await fetch("/api/tools/record-answer", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ studentId, concept, correct }),
+          body: JSON.stringify({ studentId: resolvedId, concept, correct }),
         })
         if (!res.ok) {
           const body = (await res.json().catch(() => ({}))) as { error?: string }
