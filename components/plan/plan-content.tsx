@@ -65,7 +65,7 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
   return (
     <main className="min-h-screen bg-background plan-print-root">
       {/* Header */}
-      <header className="bg-primary border-b-4 border-foreground">
+      <header className="plan-header bg-primary border-b-4 border-foreground">
         <div className="max-w-4xl mx-auto px-4 py-12 flex flex-col items-center gap-4 text-center">
           <Sun className="w-12 h-12 text-primary-foreground motion-safe:animate-spin-slow" aria-hidden="true" />
           <h1 className="font-bold text-4xl md:text-5xl text-primary-foreground text-balance">{t.yourPlan}</h1>
@@ -78,9 +78,9 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-10 flex flex-col gap-10">
+      <div className="plan-body max-w-4xl mx-auto px-4 py-10 flex flex-col gap-10">
         {/* Summary cards */}
-        <section aria-label={t.earTitle} className="grid gap-6 md:grid-cols-2">
+        <section aria-label={t.earTitle} className="plan-summary grid gap-6 md:grid-cols-2">
           <div className="border-4 border-foreground rounded-3xl bg-card p-6 flex flex-col gap-3 shadow-[6px_6px_0px_var(--color-accent-pink)]">
             <div className="flex items-center gap-3">
               <Ear className="w-8 h-8 text-primary" aria-hidden="true" />
@@ -111,14 +111,14 @@ export function PlanContent({ profile, earItems, plan }: PlanContentProps) {
         </section>
 
         {plan.lightVariant && (
-          <p className="flex items-start gap-3 border-4 border-foreground rounded-3xl bg-secondary p-5 text-secondary-foreground leading-relaxed">
+          <p className="plan-note flex items-start gap-3 border-4 border-foreground rounded-3xl bg-secondary p-5 text-secondary-foreground leading-relaxed">
             <Feather className="w-6 h-6 shrink-0 mt-0.5" aria-hidden="true" />
             {t.lightNote}
           </p>
         )}
 
         {/* Weeks */}
-        <section className="flex flex-col gap-6" aria-label={t.yourPlan}>
+        <section className="plan-weeks flex flex-col gap-6" aria-label={t.yourPlan}>
           {plan.weeks.map((week) => (
             <article
               key={week.week}
