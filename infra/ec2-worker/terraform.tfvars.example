@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars; keep launch_worker false until a GPU session is approved.
+launch_worker        = false
+aws_region           = "eu-west-1"
+instance_type        = "g5.2xlarge"
+subnet_id            = "subnet-001ecfd695a93fdc6"
+ami_id               = "ami-0c530031fa871c4fa"
+max_session_minutes  = 120
+token_parameter_name = "/trellis-lab/worker-token"
