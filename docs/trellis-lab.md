@@ -10,6 +10,9 @@ This app replaces the home page with a practical Microsoft TRELLIS prototype:
 
 The local GPU machine only makes outbound HTTPS requests. It does not need a public IP, inbound firewall rule, SSH tunnel, or exposed port.
 
+For a fully cloud-based setup, see [the EC2 GPU worker](trellis-ec2.md). It uses
+the same API and queue, with separate opt-in Terraform infrastructure.
+
 ## AWS resources
 
 Terraform lives in `infra/terraform` and creates:
@@ -71,10 +74,14 @@ pip install -r requirements.txt
 
 Install TRELLIS in WSL2 according to the Microsoft TRELLIS repository instructions. Keep it outside this web repo, for example `/opt/TRELLIS`, and confirm you can run a single image-to-GLB generation from the terminal.
 
-Configure the worker command. The default assumes:
+Run the worker with the TRELLIS Python environment activated. The default now
+uses the included `worker/infer.py` adapter with the official image-large model.
+Make the external TRELLIS checkout importable and preload weights before claiming
+a job:
 
 ```bash
-python /opt/TRELLIS/run.py --image {input} --output {output} --prompt {prompt}
+export PYTHONPATH=/opt/TRELLIS
+python worker/infer.py --preload
 ```
 
 If your TRELLIS entrypoint differs, provide a template:
@@ -82,6 +89,11 @@ If your TRELLIS entrypoint differs, provide a template:
 ```bash
 export TRELLIS_COMMAND='python /opt/TRELLIS/my_infer.py --input {input} --glb {output} --text {prompt}'
 ```
+
+Command templates are executed as arguments, without a shell. Shell pipelines
+should be put in a separate script. The official model requires at least 16 GB
+GPU memory; the RTX 4070's 12 GB is below that requirement and may need separately
+validated memory optimizations. The default EC2 A10G provides more headroom.
 
 Run the worker:
 

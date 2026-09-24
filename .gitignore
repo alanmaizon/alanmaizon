@@ -8,6 +8,12 @@ next-env.d.ts
 *.tsbuildinfo
 __pycache__/
 *.py[cod]
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+!*.tfvars.example
 
 # Environment files
 .env
