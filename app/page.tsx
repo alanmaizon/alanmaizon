@@ -1,5 +1,5 @@
-import { LandingPage } from "@/components/landing-page"
+import { TrellisApp } from "@/components/trellis/trellis-app"
 
 export default function HomePage() {
-  return <LandingPage />
+  return <TrellisApp />
 }

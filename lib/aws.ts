@@ -1,8 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb"
 import { awsCredentialsProvider } from "@vercel/functions/oidc"
+import { getAppAwsCredentials } from "@/lib/aws-credentials"
 
-const AWS_REGION = process.env.AWS_REGION || "us-east-1"
+const AWS_REGION = process.env.APP_AWS_REGION || process.env.AWS_REGION || "us-east-1"
 const AWS_ROLE_ARN = process.env.AWS_ROLE_ARN
 
 export const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || ""
@@ -14,9 +15,10 @@ export function getDocClient(): DynamoDBDocumentClient {
 
   const client = new DynamoDBClient({
     region: AWS_REGION,
+    ...(getAppAwsCredentials() ? { credentials: getAppAwsCredentials() } : {}),
     // Use Vercel OIDC federation when a role ARN is configured;
     // otherwise fall back to the default credential chain (local dev).
-    ...(AWS_ROLE_ARN
+    ...(!getAppAwsCredentials() && AWS_ROLE_ARN
       ? {
           credentials: awsCredentialsProvider({
             roleArn: AWS_ROLE_ARN,
