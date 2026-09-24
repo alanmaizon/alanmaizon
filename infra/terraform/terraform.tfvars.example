@@ -1,0 +1,6 @@
+aws_region = "eu-west-1"
+browser_origins = [
+  "https://alanmaizon.com",
+  "https://www.alanmaizon.com",
+  "https://trellis-aws-prototype.d3lhjc99f3rc0a.amplifyapp.com",
+]

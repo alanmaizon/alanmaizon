@@ -13,6 +13,8 @@ The local GPU machine only makes outbound HTTPS requests. It does not need a pub
 For a fully cloud-based setup, see [the EC2 GPU worker](trellis-ec2.md). It uses
 the same API and queue, with separate opt-in Terraform infrastructure.
 
+For the public domain, HTTPS, and DNS rollback, see [custom domain setup](trellis-domain.md).
+
 ## AWS resources
 
 Terraform lives in `infra/terraform` and creates:
@@ -29,6 +31,11 @@ cd infra/terraform
 terraform init
 terraform apply
 ```
+
+Set `browser_origins` to the exact HTTPS origins serving the app (see
+`terraform.tfvars.example`). Babylon.js follows the artifact API's redirect to a
+signed S3 URL, so the bucket needs GET/HEAD CORS for those origins. The bucket
+remains private; CORS grants no object access and permits no browser writes.
 
 Set these environment variables on the hosted web/API runtime:
 

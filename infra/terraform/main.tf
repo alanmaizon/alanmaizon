@@ -21,6 +21,19 @@ resource "aws_s3_bucket" "trellis" {
   bucket_prefix = "${local.name}-"
 }
 
+resource "aws_s3_bucket_cors_configuration" "trellis" {
+  count  = length(var.browser_origins) > 0 ? 1 : 0
+  bucket = aws_s3_bucket.trellis.id
+
+  cors_rule {
+    allowed_origins = var.browser_origins
+    allowed_methods = ["GET", "HEAD"]
+    allowed_headers = ["*"]
+    expose_headers  = ["ETag", "Content-Length", "Content-Range", "Accept-Ranges"]
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "trellis" {
   bucket                  = aws_s3_bucket.trellis.id
   block_public_acls       = true
@@ -111,4 +124,3 @@ resource "aws_iam_policy" "app" {
     ]
   })
 }
-

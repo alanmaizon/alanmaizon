@@ -18,3 +18,8 @@ variable "artifact_retention_days" {
   default = 7
 }
 
+variable "browser_origins" {
+  description = "Exact web origins allowed to fetch signed GLB URLs. This does not make the bucket public."
+  type        = list(string)
+  default     = []
+}
